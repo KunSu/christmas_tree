@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 const GoldDust: React.FC = () => {
-  const count = 500; // More snow
+  const count = 10000; // More snow for full coverage
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
@@ -13,11 +13,12 @@ const GoldDust: React.FC = () => {
     for (let i = 0; i < count; i++) {
       const t = Math.random() * 100;
       const factor = 20 + Math.random() * 100;
-      const speed = 0.05 + Math.random() * 0.1; // Falling speed
-      const x = Math.random() * 40 - 20;
-      const y = Math.random() * 40 - 10; // Start higher
-      const z = Math.random() * 40 - 20;
-      // Random color: Gold or Silver
+      const speed = (0.05 + Math.random() * 0.1) * 0.1; // Falling speed (Slower)
+      // Cover a larger area
+      const x = Math.random() * 60 - 30;
+      const y = Math.random() * 60 - 20;
+      const z = Math.random() * 60 - 30;
+      // White color for snow
       const isGold = Math.random() > 0.5;
       const color = isGold ? new THREE.Color("#FFD700") : new THREE.Color("#C0C0C0");
 
@@ -40,33 +41,25 @@ const GoldDust: React.FC = () => {
       particle.y -= particle.speed;
 
       // Reset if too low
-      if (particle.y < -20) {
-        particle.y = 20;
-        particle.x = Math.random() * 40 - 20;
-        particle.z = Math.random() * 40 - 20;
+      if (particle.y < -30) {
+        particle.y = 30;
+        particle.x = Math.random() * 60 - 30;
+        particle.z = Math.random() * 60 - 30;
       }
 
       // Horizontal sway
-      particle.x += Math.sin(particle.t) * 0.02;
-      particle.z += Math.cos(particle.t) * 0.02;
-
-      // Attraction to cursor (still keep magic)
-      const dx = targetX - particle.x;
-      const dy = targetY - particle.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-
-      if (dist < 8) {
-        particle.x += dx * 0.03;
-        particle.y += dy * 0.03;
-      }
+      particle.x += Math.sin(particle.t) * 0.002;
+      particle.z += Math.cos(particle.t) * 0.002;
 
       dummy.position.set(particle.x, particle.y, particle.z);
       dummy.scale.setScalar(0.05 + Math.random() * 0.05); // Twinkle size
       dummy.rotation.set(Math.sin(particle.t), Math.cos(particle.t), 0);
       dummy.updateMatrix();
 
-      meshRef.current.setMatrixAt(i, dummy.matrix);
-      meshRef.current.setColorAt(i, particle.color);
+      if (meshRef.current) {
+        meshRef.current.setMatrixAt(i, dummy.matrix);
+        meshRef.current.setColorAt(i, particle.color);
+      }
     });
 
     if (meshRef.current) {

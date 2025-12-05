@@ -3,7 +3,9 @@ import { useFrame, ThreeEvent } from '@react-three/fiber';
 import { Image, useCursor } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
-import { generateChaosPositions, generateTreePositions } from '../utils/positions';
+import { generateChaosPositions, generateHangingPositions, generateProgressiveHangingPositions } from '../utils/positions';
+import { currentTheme } from '../config/theme';
+import InstancedGifts from './InstancedGifts';
 
 // Helper for instanced ornaments
 const InstancedOrnaments = ({ count, color, scale, speedFactor, geometry }: any) => {
@@ -12,7 +14,7 @@ const InstancedOrnaments = ({ count, color, scale, speedFactor, geometry }: any)
     const dummy = useMemo(() => new THREE.Object3D(), []);
 
     const chaosPositions = useMemo(() => generateChaosPositions(count, 25), [count]);
-    const treePositions = useMemo(() => generateTreePositions(count, 9, 3.5), [count]);
+    const treePositions = useMemo(() => generateProgressiveHangingPositions(count, 10, 4, 12), [count]);
 
     // Store current positions to interpolate
     const currentPositions = useMemo(() => {
@@ -151,40 +153,34 @@ const Ornaments: React.FC = () => {
     }, []);
 
     const sphereGeo = useMemo(() => new THREE.SphereGeometry(1, 16, 16), []);
-    const boxGeo = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
 
-    // Generate fixed positions for photos on the tree
+    // Generate hanging positions for photos
     const photoPositions = useMemo(() => {
-        // Manually place them or use generator
-        // Let's spiral them
-        const pos = [];
+        // Use the hanging generator for photos too
+        const pos = generateHangingPositions(10, 10, 4, 12);
+        const arr = [];
         for (let i = 0; i < 10; i++) {
-            const y = -4 + i * 1.5;
-            const r = 4 * (1 - (y + 5) / 10) + 1; // Taper
-            const theta = i * 2;
-            const x = r * Math.cos(theta);
-            const z = r * Math.sin(theta);
-            pos.push([x, y, z]);
+            arr.push([pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]]);
         }
-        return pos;
+        return arr;
     }, []);
 
     return (
         <group>
-            {/* Red Balls - Heavy */}
-            <InstancedOrnaments count={40} color="#ff3333" scale={0.3} speedFactor={0.5} geometry={sphereGeo} />
+            {/* Primary Balls - Progressive Distribution */}
+            <InstancedOrnaments count={15} color={currentTheme.colors.primaryBall} scale={0.3} speedFactor={0.5} geometry={sphereGeo} />
 
-            {/* Gold Balls - Medium */}
-            <InstancedOrnaments count={60} color="#FFD700" scale={0.25} speedFactor={0.8} geometry={sphereGeo} />
+            {/* Secondary Balls - Progressive Distribution */}
+            <InstancedOrnaments count={25} color={currentTheme.colors.secondaryBall} scale={0.25} speedFactor={0.8} geometry={sphereGeo} />
 
-            {/* Lights - Light/Fast - Twinkling handled in shader/animation if possible, or just fast movement */}
-            <InstancedOrnaments count={200} color="#ffffcc" scale={0.08} speedFactor={1.5} geometry={sphereGeo} />
+            {/* Lights - Progressive Distribution */}
+            <InstancedOrnaments count={1200} color={currentTheme.colors.lights} scale={0.08} speedFactor={1.5} geometry={sphereGeo} />
 
-            {/* Gifts - Cubes */}
-            <InstancedOrnaments count={20} color="#0033cc" scale={0.4} speedFactor={0.3} geometry={boxGeo} />
+            {/* Gifts - Green boxes with red ribbons and bows - Progressive Distribution */}
+            <InstancedGifts count={8} boxColor="#2d5f2e" ribbonColor="#dc143c" scale={0.35} speedFactor={0.3} />
 
-            {/* Candy - Capsules (using Cylinder for now as Capsule is newer in Three/R3F types sometimes) */}
-            <InstancedOrnaments count={30} color="#ff00ff" scale={0.2} speedFactor={0.6} geometry={new THREE.CylinderGeometry(0.5, 0.5, 2, 8)} />
+            {/* Candy - Progressive Distribution */}
+            <InstancedOrnaments count={18} color={currentTheme.colors.candy} scale={0.2} speedFactor={0.6} geometry={new THREE.CylinderGeometry(0.5, 0.5, 2, 8)} />
 
             {/* Photos */}
             {photos.map((photo, i) => (

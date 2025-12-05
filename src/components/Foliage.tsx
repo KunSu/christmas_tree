@@ -9,7 +9,6 @@ import { generateChaosPositions, generateTreePositions } from '../utils/position
 const FoliageMaterial = shaderMaterial(
     {
         uTime: 0,
-        uColor: new THREE.Color('#005C45'),
         uProgress: 0, // 0 = Chaos, 1 = Formed
     },
     // Vertex Shader
@@ -18,7 +17,9 @@ const FoliageMaterial = shaderMaterial(
     uniform float uProgress;
     attribute vec3 aChaosPosition;
     attribute vec3 aTreePosition;
+    attribute vec3 aColor;
     varying float vAlpha;
+    varying vec3 vColor;
     
     void main() {
       // Cubic ease in-out for smoother transition
@@ -36,12 +37,13 @@ const FoliageMaterial = shaderMaterial(
       
       // Fade out slightly in chaos mode
       vAlpha = 0.8 + 0.2 * sin(uTime + pos.x);
+      vColor = aColor;
     }
   `,
     // Fragment Shader
     `
-    uniform vec3 uColor;
     varying float vAlpha;
+    varying vec3 vColor;
     
     void main() {
       // Circular particle
@@ -56,7 +58,7 @@ const FoliageMaterial = shaderMaterial(
       // Add extra glow at center
       strength += 0.5 * pow(1.0 - dist * 2.0, 3.0);
       
-      gl_FragColor = vec4(uColor, vAlpha * strength);
+      gl_FragColor = vec4(vColor, vAlpha * strength);
     }
   `
 );
@@ -76,9 +78,35 @@ const Foliage: React.FC = () => {
     const mode = useStore((state) => state.mode);
     const materialRef = useRef<any>(null);
 
-    const count = 45000; // Increased count for better look
+    const count = 60000; // More particles for density
     const chaosPositions = useMemo(() => generateChaosPositions(count, 20), []);
-    const treePositions = useMemo(() => generateTreePositions(count, 12, 5), []);
+    // Use 12 layers as requested
+    const treePositions = useMemo(() => generateTreePositions(count, 12, 5, 12), []);
+
+    // Color attribute for mix of gold and snow
+    const colors = useMemo(() => {
+        const array = new Float32Array(count * 3);
+        const color1 = new THREE.Color('#ffffff'); // Snow
+        const color2 = new THREE.Color('#FFD700'); // Gold
+        const tempColor = new THREE.Color();
+
+        for (let i = 0; i < count; i++) {
+            // 80% snow, 20% gold
+            const isGold = Math.random() > 0.8;
+            tempColor.copy(isGold ? color2 : color1);
+
+            // Add some variation
+            if (!isGold) {
+                // Slight blue tint for snow shadow?
+                tempColor.lerp(new THREE.Color('#e0f7fa'), Math.random() * 0.3);
+            }
+
+            array[i * 3] = tempColor.r;
+            array[i * 3 + 1] = tempColor.g;
+            array[i * 3 + 2] = tempColor.b;
+        }
+        return array;
+    }, [count]);
 
     // Progress state for animation
     const progress = useRef(0);
@@ -98,22 +126,20 @@ const Foliage: React.FC = () => {
         <points>
             <bufferGeometry>
                 <bufferAttribute
-                    attach="attributes-position" // This is actually ignored by the shader but needed for bounding box?
-                    count={count}
-                    array={chaosPositions} // Initial positions, doesn't matter much as we use custom attributes
-                    itemSize={3}
+                    attach="attributes-position"
+                    args={[chaosPositions, 3]}
                 />
                 <bufferAttribute
                     attach="attributes-aChaosPosition"
-                    count={count}
-                    array={chaosPositions}
-                    itemSize={3}
+                    args={[chaosPositions, 3]}
                 />
                 <bufferAttribute
                     attach="attributes-aTreePosition"
-                    count={count}
-                    array={treePositions}
-                    itemSize={3}
+                    args={[treePositions, 3]}
+                />
+                <bufferAttribute
+                    attach="attributes-aColor"
+                    args={[colors, 3]}
                 />
             </bufferGeometry>
             {/* @ts-ignore */}

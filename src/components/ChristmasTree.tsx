@@ -4,6 +4,7 @@ import { useStore } from '../store/useStore';
 import Foliage from './Foliage';
 import Ornaments from './Ornaments';
 import GoldDust from './GoldDust';
+import Star from './Star';
 import * as THREE from 'three';
 
 const ChristmasTree: React.FC = () => {
@@ -73,6 +74,7 @@ const ChristmasTree: React.FC = () => {
             <Foliage />
             <Ornaments />
             <GoldDust />
+            <Star />
         </group>
     );
 };
