@@ -2,7 +2,8 @@ import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
-import { generateChaosPositions, generateProgressiveHangingPositions } from '../utils/positions';
+import { generateChaosPositions } from '../utils/positions';
+import { generateOrnamentPositions } from '../utils/treeUtils';
 
 interface InstancedGiftsProps {
     count: number;
@@ -10,6 +11,8 @@ interface InstancedGiftsProps {
     ribbonColor?: string;
     scale: number;
     speedFactor: number;
+    radiusMin?: number;
+    radiusMax?: number;
 }
 
 /**
@@ -21,7 +24,9 @@ const InstancedGifts: React.FC<InstancedGiftsProps> = ({
     boxColor = '#3bf73eff',  // Dark green
     ribbonColor = '#dc143c', // Crimson red
     scale,
-    speedFactor
+    speedFactor,
+    radiusMin,
+    radiusMax
 }) => {
     const mode = useStore((state) => state.mode);
 
@@ -36,7 +41,7 @@ const InstancedGifts: React.FC<InstancedGiftsProps> = ({
     const dummy = useMemo(() => new THREE.Object3D(), []);
 
     const chaosPositions = useMemo(() => generateChaosPositions(count, 25), [count]);
-    const treePositions = useMemo(() => generateProgressiveHangingPositions(count, 10, 4, 12), [count]);
+    const treePositions = useMemo(() => generateOrnamentPositions(count, { radiusMin, radiusMax }), [count, radiusMin, radiusMax]);
 
     // Store current positions to interpolate
     const currentPositions = useMemo(() => {
@@ -147,32 +152,32 @@ const InstancedGifts: React.FC<InstancedGiftsProps> = ({
     return (
         <group>
             {/* Main Gift Boxes (Green) */}
-            <instancedMesh ref={boxRef} args={[boxGeo, undefined, count]}>
+            <instancedMesh ref={boxRef} args={[boxGeo, undefined, count]} raycast={() => { }}>
                 <meshStandardMaterial color={boxColor} roughness={0.4} metalness={0.1} />
             </instancedMesh>
 
             {/* Horizontal Ribbons (Red) */}
-            <instancedMesh ref={hRibbonRef} args={[hRibbonGeo, undefined, count]}>
+            <instancedMesh ref={hRibbonRef} args={[hRibbonGeo, undefined, count]} raycast={() => { }}>
                 <meshStandardMaterial color={ribbonColor} roughness={0.3} metalness={0.6} />
             </instancedMesh>
 
             {/* Vertical Ribbons (Red) */}
-            <instancedMesh ref={vRibbonRef} args={[vRibbonGeo, undefined, count]}>
+            <instancedMesh ref={vRibbonRef} args={[vRibbonGeo, undefined, count]} raycast={() => { }}>
                 <meshStandardMaterial color={ribbonColor} roughness={0.3} metalness={0.6} />
             </instancedMesh>
 
             {/* Bow Left Loop (Red) */}
-            <instancedMesh ref={bowLeftRef} args={[bowLoopGeo, undefined, count]} position={[-0.25, 0.55, 0]}>
+            <instancedMesh ref={bowLeftRef} args={[bowLoopGeo, undefined, count]} position={[-0.25, 0.55, 0]} raycast={() => { }}>
                 <meshStandardMaterial color={ribbonColor} roughness={0.3} metalness={0.6} />
             </instancedMesh>
 
             {/* Bow Right Loop (Red) */}
-            <instancedMesh ref={bowRightRef} args={[bowLoopGeo, undefined, count]} position={[0.25, 0.55, 0]}>
+            <instancedMesh ref={bowRightRef} args={[bowLoopGeo, undefined, count]} position={[0.25, 0.55, 0]} raycast={() => { }}>
                 <meshStandardMaterial color={ribbonColor} roughness={0.3} metalness={0.6} />
             </instancedMesh>
 
             {/* Bow Knot (Red) */}
-            <instancedMesh ref={bowKnotRef} args={[bowKnotGeo, undefined, count]} position={[0, 0.55, 0]}>
+            <instancedMesh ref={bowKnotRef} args={[bowKnotGeo, undefined, count]} position={[0, 0.55, 0]} raycast={() => { }}>
                 <meshStandardMaterial color={ribbonColor} roughness={0.3} metalness={0.6} />
             </instancedMesh>
         </group>

@@ -1,20 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useFrame, ThreeEvent } from '@react-three/fiber';
-import { Image, useCursor } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
-import { generateChaosPositions, generateHangingPositions, generateProgressiveHangingPositions } from '../utils/positions';
+import { generateChaosPositions } from '../utils/positions';
+import { generateOrnamentPositions } from '../utils/treeUtils';
 import { currentTheme } from '../config/theme';
 import InstancedGifts from './InstancedGifts';
+import PhotoItem from './PhotoItem';
 
 // Helper for instanced ornaments
-const InstancedOrnaments = ({ count, color, scale, speedFactor, geometry }: any) => {
+const InstancedOrnaments = ({ count, color, scale, speedFactor, geometry, radiusMin, radiusMax }: any) => {
     const mode = useStore((state) => state.mode);
     const meshRef = useRef<THREE.InstancedMesh>(null);
     const dummy = useMemo(() => new THREE.Object3D(), []);
 
     const chaosPositions = useMemo(() => generateChaosPositions(count, 25), [count]);
-    const treePositions = useMemo(() => generateProgressiveHangingPositions(count, 10, 4, 12), [count]);
+    const treePositions = useMemo(() => generateOrnamentPositions(count, { radiusMin, radiusMax }), [count, radiusMin, radiusMax]);
 
     // Store current positions to interpolate
     const currentPositions = useMemo(() => {
@@ -60,85 +61,9 @@ const InstancedOrnaments = ({ count, color, scale, speedFactor, geometry }: any)
     });
 
     return (
-        <instancedMesh ref={meshRef} args={[undefined, undefined, count]} geometry={geometry}>
+        <instancedMesh ref={meshRef} args={[undefined, undefined, count]} geometry={geometry} raycast={() => { }}>
             <meshStandardMaterial color={color} roughness={0.3} metalness={0.8} />
-        </instancedMesh>
-    );
-};
-
-// Photo Component
-const PhotoItem = ({ url, position, rotation, scale, index }: any) => {
-    const mode = useStore((state) => state.mode);
-    const ref = useRef<THREE.Group>(null);
-    const [hovered, setHover] = useState(false);
-    const [active, setActive] = useState(false);
-    useCursor(hovered);
-
-    // Chaos position
-    const chaosPos = useMemo(() => {
-        const p = generateChaosPositions(1, 20);
-        return new THREE.Vector3(p[0], p[1], p[2]);
-    }, []);
-
-    // Target position (on tree)
-    const treePos = useMemo(() => new THREE.Vector3(...position), [position]);
-
-    useFrame((state, delta) => {
-        if (!ref.current) return;
-
-        const target = mode === 'CHAOS' ? chaosPos : treePos;
-
-        // Smooth movement
-        ref.current.position.lerp(target, delta * 2);
-
-        // Look at camera if active, otherwise normal rotation
-        if (active) {
-            ref.current.lookAt(state.camera.position);
-        } else {
-            // ref.current.rotation.set(rotation[0], rotation[1], rotation[2]);
-            // Simple billboard or fixed rotation
-            ref.current.lookAt(0, ref.current.position.y, 0); // Look at center trunk
-            ref.current.rotateY(Math.PI); // Face outward
-
-            // Add gentle floating/swaying
-            ref.current.rotation.z = Math.sin(state.clock.elapsedTime + index) * 0.1;
-        }
-
-        // Scale animation
-        const targetScale = active ? 2.5 : (hovered ? 1.2 : 1);
-        ref.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), delta * 5);
-    });
-
-    const handleClick = (e: ThreeEvent<MouseEvent>) => {
-        e.stopPropagation();
-        setActive(!active);
-        // Here we should probably trigger a camera zoom or move
-        // For now, just scale up the photo
-    };
-
-    // Reset active if mode changes to Chaos
-    useEffect(() => {
-        if (mode === 'CHAOS') setActive(false);
-    }, [mode]);
-
-    return (
-        <group ref={ref} onClick={handleClick} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
-            {/* Polaroid Frame */}
-            <mesh position={[0, -0.1, -0.02]}>
-                <boxGeometry args={[1.2, 1.4, 0.05]} />
-                <meshStandardMaterial color="#ffffff" roughness={0.2} metalness={0.1} side={THREE.DoubleSide} />
-            </mesh>
-
-            {/* Photo */}
-            <mesh position={[0, 0, 0.01]}>
-                <planeGeometry args={[1, 1]} />
-                <meshBasicMaterial side={THREE.DoubleSide}>
-                    <Image url={url} transparent />
-                </meshBasicMaterial>
-            </mesh>
-
-            {/* Back of photo (optional, or just use DoubleSide on frame) */}
-        </group>
+        </instancedMesh >
     );
 };
 
@@ -156,8 +81,8 @@ const Ornaments: React.FC = () => {
 
     // Generate hanging positions for photos
     const photoPositions = useMemo(() => {
-        // Use the hanging generator for photos too
-        const pos = generateHangingPositions(10, 10, 4, 12);
+        // Use the same treeUtils generator for photos
+        const pos = generateOrnamentPositions(10);
         const arr = [];
         for (let i = 0; i < 10; i++) {
             arr.push([pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]]);
@@ -167,20 +92,20 @@ const Ornaments: React.FC = () => {
 
     return (
         <group>
-            {/* Primary Balls - Progressive Distribution */}
-            <InstancedOrnaments count={15} color={currentTheme.colors.primaryBall} scale={0.3} speedFactor={0.5} geometry={sphereGeo} />
+            {/* Primary Balls - Deeper Layer (0.5 - 0.8) */}
+            <InstancedOrnaments count={300} color={currentTheme.colors.primaryBall} scale={0.3} speedFactor={0.5} geometry={sphereGeo} radiusMin={0.5} radiusMax={0.8} />
 
-            {/* Secondary Balls - Progressive Distribution */}
-            <InstancedOrnaments count={25} color={currentTheme.colors.secondaryBall} scale={0.25} speedFactor={0.8} geometry={sphereGeo} />
+            {/* Secondary Balls - Middle Layer (0.7 - 1.0) */}
+            <InstancedOrnaments count={500} color={currentTheme.colors.secondaryBall} scale={0.25} speedFactor={0.8} geometry={sphereGeo} radiusMin={0.7} radiusMax={1.0} />
 
-            {/* Lights - Progressive Distribution */}
-            <InstancedOrnaments count={1200} color={currentTheme.colors.lights} scale={0.08} speedFactor={1.5} geometry={sphereGeo} />
+            {/* Lights - Scattered (0.6 - 1.05) */}
+            <InstancedOrnaments count={1200} color={currentTheme.colors.lights} scale={0.08} speedFactor={1.5} geometry={sphereGeo} radiusMin={0.6} radiusMax={1.05} />
 
-            {/* Gifts - Green boxes with red ribbons and bows - Progressive Distribution */}
-            <InstancedGifts count={8} boxColor="#2d5f2e" ribbonColor="#dc143c" scale={0.35} speedFactor={0.3} />
+            {/* Gifts - Outer Layer (0.9 - 1.1) */}
+            <InstancedGifts count={200} boxColor="hsla(317, 100%, 94%, 1.00)" ribbonColor="#dc143c" scale={0.35} speedFactor={0.3} radiusMin={0.9} radiusMax={1.1} />
 
             {/* Candy - Progressive Distribution */}
-            <InstancedOrnaments count={18} color={currentTheme.colors.candy} scale={0.2} speedFactor={0.6} geometry={new THREE.CylinderGeometry(0.5, 0.5, 2, 8)} />
+            {/* <InstancedOrnaments count={1800} color={currentTheme.colors.candy} scale={0.2} speedFactor={0.6} geometry={new THREE.CylinderGeometry(0.5, 0.5, 2, 8)} /> */}
 
             {/* Photos */}
             {photos.map((photo, i) => (
@@ -188,9 +113,9 @@ const Ornaments: React.FC = () => {
                     key={`${photo}-${i}`}
                     url={`/assets/photos/${photo}`}
                     index={i}
-                    position={photoPositions[i % photoPositions.length]}
+                    position={photoPositions[i % photoPositions.length] as [number, number, number]}
                     rotation={[0, 0, 0]}
-                    scale={1}
+                    scale={0.6}
                 />
             ))}
         </group>

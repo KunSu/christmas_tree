@@ -25,7 +25,7 @@ const Experience: React.FC = () => {
                 </Suspense>
 
                 <EffectComposer>
-                    <Bloom luminanceThreshold={0.8} mipmapBlur intensity={1.2} radius={0.4} />
+                    <Bloom luminanceThreshold={0.5} mipmapBlur intensity={1.5} luminanceSmoothing={0.9} />
                 </EffectComposer>
 
                 <OrbitControls enablePan={false} enableZoom={true} minDistance={10} maxDistance={30} />

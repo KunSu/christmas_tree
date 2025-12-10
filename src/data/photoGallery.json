@@ -1,0 +1,14 @@
+[
+    {
+        "id": "1",
+        "url": "/assets/photos/1.jpg",
+        "title": "Christmas Memory 1",
+        "description": "A wonderful time with family."
+    },
+    {
+        "id": "2",
+        "url": "/assets/photos/2.jpg",
+        "title": "Christmas Memory 2",
+        "description": "Opening gifts by the tree."
+    }
+]

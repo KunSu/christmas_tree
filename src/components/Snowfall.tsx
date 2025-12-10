@@ -69,10 +69,10 @@ const GoldDust: React.FC = () => {
   });
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} raycast={() => { }}>
       <dodecahedronGeometry args={[0.2, 0]} />
       <meshStandardMaterial emissive="#ffffff" emissiveIntensity={0.8} toneMapped={false} vertexColors />
-    </instancedMesh>
+    </instancedMesh >
   );
 };
 
