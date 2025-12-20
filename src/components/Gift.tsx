@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import * as THREE from 'three';
 
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+
 interface GiftProps {
     boxColor?: string;
     ribbonColor?: string;
@@ -138,7 +140,7 @@ export const createGiftGeometry = (): THREE.BufferGeometry => {
 
     // Merge all geometries
     // Note: We'll create a custom material setup in the component
-    return THREE.BufferGeometryUtils.mergeGeometries(geometries);
+    return BufferGeometryUtils.mergeGeometries(geometries);
 };
 
 export default Gift;
