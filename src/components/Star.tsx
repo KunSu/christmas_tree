@@ -1,21 +1,23 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { Sparkles, Float } from '@react-three/drei';
 import * as THREE from 'three';
 import { currentTheme } from '../config/theme';
 
 const Star: React.FC = () => {
     const meshRef = useRef<THREE.Mesh>(null);
-    const glowRef = useRef<THREE.Mesh>(null);
+    const auraRef = useRef<THREE.Mesh>(null);
+    const raysRef = useRef<THREE.Group>(null);
 
-    // ... (starShape logic remains same)
-    const starShape = React.useMemo(() => {
+    // 5-pointed star shape
+    const starShape = useMemo(() => {
         const shape = new THREE.Shape();
-        const outerRadius = 0.4;
+        const outerRadius = 0.5;
         const innerRadius = 0.2;
-        const points = 8; // 8-pointed star
+        const points = 5;
 
         for (let i = 0; i < points * 2; i++) {
-            const angle = (i * Math.PI) / points - Math.PI / 2; // Start from top
+            const angle = (i * Math.PI) / points - Math.PI / 2;
             const radius = i % 2 === 0 ? outerRadius : innerRadius;
             const x = Math.cos(angle) * radius;
             const y = Math.sin(angle) * radius;
@@ -36,70 +38,75 @@ const Star: React.FC = () => {
     };
 
     useFrame((state, delta) => {
+        const t = state.clock.elapsedTime;
+
         if (meshRef.current) {
-            meshRef.current.rotation.y += delta * 0.2; // Rotate around vertical axis
+            meshRef.current.rotation.y += delta * 0.3;
         }
-        if (glowRef.current) {
-            glowRef.current.rotation.y += delta * 0.2; // Rotate around vertical axis
-            // Pulse effect
-            const pulse = Math.sin(state.clock.elapsedTime * 2) * 0.3 + 1;
-            glowRef.current.scale.setScalar(1.5 + pulse * 0.2);
+
+        if (auraRef.current) {
+            auraRef.current.rotation.y -= delta * 0.1;
+            const pulse = 1.3 + Math.sin(t * 1.5) * 0.1;
+            auraRef.current.scale.setScalar(pulse);
+        }
+
+        if (raysRef.current) {
+            raysRef.current.rotation.z += delta * 0.05;
         }
     });
 
     return (
-        <group position={[0, 6.0, 0]}>
-            {/* Outer glow layers */}
-            <mesh ref={glowRef}>
-                <extrudeGeometry args={[starShape, { ...extrudeSettings, depth: 0.01 }]} />
-                <meshBasicMaterial
-                    color={currentTheme.tree.star.glow}
-                    transparent
-                    opacity={0.4}
+        <group position={[0, 6.2, 0]}>
+            <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+                {/* Volumetric Light Rays */}
+                <group ref={raysRef}>
+                    {[...Array(8)].map((_, i) => (
+                        <mesh key={i} rotation={[0, 0, (i * Math.PI) / 4]}>
+                            {/* <planeGeometry args={[0.05, 4]} /> */}
+                            <meshBasicMaterial
+                                color="#FFD700"
+                                transparent
+                                opacity={0.15}
+                                blending={THREE.AdditiveBlending}
+                                side={THREE.DoubleSide}
+                            />
+                        </mesh>
+                    ))}
+                </group>
+
+                {/* Main Star Body - Polished Gold/Crystal */}
+                <mesh ref={meshRef}>
+                    <extrudeGeometry args={[starShape, extrudeSettings]} />
+                    <meshPhysicalMaterial
+                        color={currentTheme.tree.star.main}
+                        emissive={currentTheme.tree.star.emissive}
+                        emissiveIntensity={1.5}
+                        roughness={0.05}
+                        metalness={0.8}
+                        reflectivity={1}
+                        clearcoat={1}
+                        clearcoatRoughness={0.1}
+                        transmission={0.2}
+                        thickness={0.5}
+                        attenuationColor={currentTheme.tree.star.main}
+                    />
+                </mesh>
+
+                {/* Point Lights inside the star */}
+                <pointLight
+                    intensity={5}
+                    distance={10}
+                    color="#FFD700"
+                    decay={2}
                 />
-            </mesh>
-
-            {/* Main star body */}
-            <mesh ref={meshRef}>
-                <extrudeGeometry args={[starShape, extrudeSettings]} />
-                <meshStandardMaterial
-                    color={currentTheme.tree.star.main}
-                    emissive={currentTheme.tree.star.emissive}
-                    emissiveIntensity={3}
-                    roughness={0.1}
-                    metalness={0.8}
+                <pointLight
+                    position={[0, 0, 0.5]}
+                    intensity={1}
+                    distance={5}
+                    color="#FFFFFF"
+                    decay={1}
                 />
-            </mesh>
-
-            {/* Center golden circle */}
-            <mesh position={[0, 0, 0.1]}>
-                <circleGeometry args={[0.25, 32]} />
-                <meshStandardMaterial
-                    color={currentTheme.tree.star.emissive}
-                    emissive={currentTheme.tree.star.glow}
-                    emissiveIntensity={2}
-                    roughness={0.2}
-                    metalness={1}
-                />
-            </mesh>
-
-            {/* Point light for glow effect */}
-            <pointLight
-                position={[0, 0, 0]}
-                color={currentTheme.tree.star.glow}
-                intensity={2}
-                distance={15}
-                decay={2}
-            />
-
-            {/* Additional ambient glow */}
-            <pointLight
-                position={[0, 0, 0.5]}
-                color={currentTheme.tree.star.main}
-                intensity={1}
-                distance={8}
-                decay={2}
-            />
+            </Float>
         </group>
     );
 };
