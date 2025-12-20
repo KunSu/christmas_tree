@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
 import { generateChaosPositions } from '../utils/positions';
-import { generateOrnamentPositions } from '../utils/treeUtils';
+import { generateOrnamentPositions, generateFibonacciSpiralPositions } from '../utils/treeUtils';
 import { currentTheme } from '../config/theme';
 import InstancedGifts from './InstancedGifts';
 import PhotoItem from './PhotoItem';
@@ -21,7 +21,7 @@ const InstancedOrnaments = ({ count, color, scale, speedFactor, geometry, radius
     const meshRef = useRef<THREE.InstancedMesh>(null);
     const dummy = useMemo(() => new THREE.Object3D(), []);
 
-    const chaosPositions = useMemo(() => generateChaosPositions(count, 15), [count]);
+    const chaosPositions = useMemo(() => generateChaosPositions(count, 20), [count]);
     const treePositions = useMemo(() => generateOrnamentPositions(count, { radiusMin, radiusMax }), [count, radiusMin, radiusMax]);
 
     // Store current positions to interpolate
@@ -74,7 +74,11 @@ const InstancedOrnaments = ({ count, color, scale, speedFactor, geometry, radius
     );
 };
 
-const Ornaments: React.FC = () => {
+interface OrnamentsProps {
+    isMobile?: boolean;
+}
+
+const Ornaments: React.FC<OrnamentsProps> = ({ isMobile = false }) => {
     const [photos, setPhotos] = useState<PhotoData[]>([]);
 
     useEffect(() => {
@@ -88,28 +92,29 @@ const Ornaments: React.FC = () => {
 
     // Generate hanging positions for photos
     const photoPositions = useMemo(() => {
-        // Use the same treeUtils generator for photos
-        const pos = generateOrnamentPositions(10);
+        const count = Math.max(photos.length, 1);
+        // Use Fibonacci spiral for photos to ensure even distribution and prevent overlaps
+        const pos = generateFibonacciSpiralPositions(count, { radiusMin: 0.95, radiusMax: 1.05 });
         const arr = [];
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < count; i++) {
             arr.push([pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]]);
         }
         return arr;
-    }, []);
+    }, [photos.length]);
 
     return (
         <group>
             {/* Primary Balls - Deeper Layer (0.5 - 0.8) */}
-            <InstancedOrnaments count={300} color={currentTheme.colors.primaryBall} scale={0.3} speedFactor={0.5} geometry={sphereGeo} radiusMin={0.5} radiusMax={0.8} />
+            <InstancedOrnaments count={isMobile ? 250 : 300} color={currentTheme.colors.primaryBall} scale={0.3} speedFactor={0.5} geometry={sphereGeo} radiusMin={0.5} radiusMax={0.8} />
 
             {/* Secondary Balls - Middle Layer (0.7 - 1.0) */}
-            <InstancedOrnaments count={500} color={currentTheme.colors.secondaryBall} scale={0.25} speedFactor={0.8} geometry={sphereGeo} radiusMin={0.7} radiusMax={1.0} />
+            <InstancedOrnaments count={isMobile ? 400 : 500} color={currentTheme.colors.secondaryBall} scale={0.25} speedFactor={0.8} geometry={sphereGeo} radiusMin={0.7} radiusMax={1.0} />
 
             {/* Lights - Scattered (0.6 - 1.05) */}
-            <InstancedOrnaments count={1200} color={currentTheme.colors.lights} scale={0.08} speedFactor={1.5} geometry={sphereGeo} radiusMin={0.6} radiusMax={1.05} />
+            <InstancedOrnaments count={isMobile ? 1200 : 1200} color={currentTheme.colors.lights} scale={0.08} speedFactor={1.5} geometry={sphereGeo} radiusMin={0.6} radiusMax={1.05} />
 
             {/* Gifts - Outer Layer (0.9 - 1.1) */}
-            <InstancedGifts count={200} boxColor={currentTheme.gift.box} ribbonColor={currentTheme.gift.ribbon} scale={0.35} speedFactor={0.3} radiusMin={0.9} radiusMax={1.1} />
+            <InstancedGifts count={isMobile ? 100 : 200} boxColor={currentTheme.gift.box} ribbonColor={currentTheme.gift.ribbon} scale={0.35} speedFactor={0.3} radiusMin={0.8} radiusMax={1.0} />
 
             {/* Candy - Progressive Distribution */}
             {/* <InstancedOrnaments count={1800} color={currentTheme.colors.candy} scale={0.2} speedFactor={0.6} geometry={new THREE.CylinderGeometry(0.5, 0.5, 2, 8)} /> */}
@@ -124,7 +129,7 @@ const Ornaments: React.FC = () => {
                     index={i}
                     position={photoPositions[i % photoPositions.length] as [number, number, number]}
                     rotation={[0, 0, 0]}
-                    scale={0.6}
+                    scale={0.8}
                 />
             ))}
         </group>

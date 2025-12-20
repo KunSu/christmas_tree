@@ -68,76 +68,97 @@ export const generateTreeParticles = (count: number): Float32Array => {
 };
 
 /**
+ * Generates positions using a Fibonacci spiral on a cone surface.
+ * This ensures extremely even distribution with no clustering.
+ * @param count Number of positions to generate
+ * @param options Distribution options
+ */
+export const generateFibonacciSpiralPositions = (count: number, options: { radiusMin?: number, radiusMax?: number, yOffset?: number } = {}): Float32Array => {
+    const { radiusMin = 0.9, radiusMax = 1.1, yOffset = 0 } = options;
+    const positions = new Float32Array(count * 3);
+
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5)); // ~137.5 degrees
+
+    for (let i = 0; i < count; i++) {
+        const i3 = i * 3;
+
+        // Cumulative area distribution for a curved cone profile
+        // Radius r(p) = R * (1-p)^0.8
+        // Density is constant if progress p follows: p = 1 - (1 - i/count)^(1/(0.8 + 1))
+        // We use i + 0.5 to avoid absolute top/bottom
+        const t = (i + 0.5) / count;
+        let layerProgress = 1 - Math.pow(1 - t, 1 / 1.8);
+
+        // Avoid absolute tip
+        if (layerProgress > 0.95) layerProgress = 0.95;
+
+        const layerY = (layerProgress * TREE_HEIGHT) - (TREE_HEIGHT / 2) + yOffset;
+        const baseRadius = MAX_RADIUS * Math.pow(1 - layerProgress, 0.8);
+
+        // Radius with slight variation
+        const r = baseRadius * (radiusMin + Math.random() * (radiusMax - radiusMin));
+
+        const theta = i * goldenAngle;
+
+        // Droop for hanging look
+        const droop = 1.3 + (Math.random() - 0.5) * 0.4;
+
+        positions[i3] = r * Math.cos(theta);
+        positions[i3 + 1] = layerY - droop;
+        positions[i3 + 2] = r * Math.sin(theta);
+    }
+
+    return positions;
+};
+
+/**
  * Generates positions for ornaments at the tips of the branches.
  * Ornaments are distributed in increasing quantities from top to bottom.
  */
 export const generateOrnamentPositions = (count: number, options: { radiusMin?: number, radiusMax?: number } = {}): Float32Array => {
+    // For large counts (balls, lights), the layered approach is fine and provides a specific density profile.
+    // For smaller counts or when even distribution is critical (like photos), 
+    // we could use Fibonacci, but here we'll stick to the layered logic for consistency
+    // unless specifically requested to change all ornaments.
+
     const { radiusMin = 0.9, radiusMax = 1.1 } = options;
     const positions = new Float32Array(count * 3);
 
     // Calculate ornament count per layer (increasing from bottom to top)
-    // Note: layerIndex 0 = bottom, layerIndex (LAYERS-1) = top
-    // Top layer is limited to max ornaments
     const MAX_TOP_LAYER_ORNAMENTS = 10;
-    const topLayerCount = Math.min(MAX_TOP_LAYER_ORNAMENTS, Math.max(1, Math.floor(count * 0.01))); // At least 1, at most defined
+    const topLayerCount = Math.min(MAX_TOP_LAYER_ORNAMENTS, Math.max(1, Math.floor(count * 0.01)));
 
-    // Remaining ornaments to distribute across other layers
     const remainingOrnaments = count - topLayerCount;
-
-    // Calculate distribution for remaining layers (bottom to near-top)
-    // Using triangular distribution: bottom layers get more, top gets less
-    const remainingLayers = LAYERS - 1;
-    // Sum of units for layers 0 to LAYERS-2: (LAYERS) + (LAYERS-1) + ... + 2
-    // This is sum from 2 to LAYERS, which is (LAYERS * (LAYERS + 1) / 2) - 1
     const totalUnits = (LAYERS * (LAYERS + 1) / 2) - 1;
     const unitsPerOrnament = remainingOrnaments > 0 ? totalUnits / remainingOrnaments : 1;
 
     let currentOrnament = 0;
 
-    // Distribute ornaments across layers
-    // Bottom (layerIndex=0) should have more, Top (layerIndex=LAYERS-1) should have less
     for (let layerIndex = 0; layerIndex < LAYERS && currentOrnament < count; layerIndex++) {
         let layerProgress = layerIndex / (LAYERS - 1);
-
-        // Avoid zero radius at the absolute tip for ornaments (prevent z-fighting with star)
         if (layerProgress > 0.96) layerProgress = 0.96;
 
-        // Number of ornaments in this layer
         let ornamentsInLayer: number;
         if (layerIndex === LAYERS - 1) {
-            // Top layer: limited count
             ornamentsInLayer = topLayerCount;
         } else {
-            // Other layers: decreasing distribution from bottom to top
-            // Invert: bottom (layerIndex=0) gets LAYERS units, top-1 (layerIndex=LAYERS-2) gets 2 units
-            const layerUnits = LAYERS - layerIndex; // LAYERS, LAYERS-1, ..., 2
+            const layerUnits = LAYERS - layerIndex;
             ornamentsInLayer = Math.round(layerUnits / unitsPerOrnament);
         }
 
         const layerY = (layerProgress * TREE_HEIGHT) - (TREE_HEIGHT / 2);
         const layerRadius = MAX_RADIUS * Math.pow(1 - layerProgress, 0.8);
 
-        // Distribute ornaments evenly around this layer
         for (let j = 0; j < ornamentsInLayer && currentOrnament < count; j++) {
             const i3 = currentOrnament * 3;
-
-            // Place at the very edge (tip) with slight variation
             const r = layerRadius * (radiusMin + Math.random() * (radiusMax - radiusMin));
-
-            // Distribute evenly around the circle with some randomness
             const angleStep = (Math.PI * 2) / ornamentsInLayer;
             const theta = j * angleStep + (Math.random() - 0.5) * angleStep * 0.5;
+            const droop = 1.5;
 
-            // Calculate droop for the tip
-            const droop = 1.5; // Max droop at edge
-
-            const x = r * Math.cos(theta);
-            const y = layerY - droop + (Math.random() - 0.5) * 0.5;
-            const z = r * Math.sin(theta);
-
-            positions[i3] = x;
-            positions[i3 + 1] = y;
-            positions[i3 + 2] = z;
+            positions[i3] = r * Math.cos(theta);
+            positions[i3 + 1] = layerY - droop + (Math.random() - 0.5) * 0.5;
+            positions[i3 + 2] = r * Math.sin(theta);
 
             currentOrnament++;
         }

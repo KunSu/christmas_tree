@@ -5,7 +5,11 @@ import ParticleTree from './ParticleTree';
 import Snowfall from './Snowfall';
 import * as THREE from 'three';
 
-const ChristmasTree: React.FC = () => {
+interface ChristmasTreeProps {
+    isMobile?: boolean;
+}
+
+const ChristmasTree: React.FC<ChristmasTreeProps> = ({ isMobile = false }) => {
     const groupRef = useRef<THREE.Group>(null);
     const mode = useStore((state) => state.mode);
 
@@ -69,8 +73,8 @@ const ChristmasTree: React.FC = () => {
                 <meshBasicMaterial />
             </mesh>
 
-            <ParticleTree />
-            <Snowfall />
+            <ParticleTree isMobile={isMobile} />
+            <Snowfall isMobile={isMobile} />
         </group>
     );
 };

@@ -3,8 +3,12 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { currentTheme } from '../config/theme';
 
-const GoldDust: React.FC = () => {
-  const count = 10000; // More snow for full coverage
+interface SnowfallProps {
+  isMobile?: boolean;
+}
+
+const GoldDust: React.FC<SnowfallProps> = ({ isMobile = false }) => {
+  const count = isMobile ? 6000 : 10000; // Reduced snow for mobile performance
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
@@ -26,7 +30,7 @@ const GoldDust: React.FC = () => {
       temp.push({ t, factor, speed, x, y, z, color });
     }
     return temp;
-  }, []);
+  }, [count]);
 
   useFrame((state) => {
     if (!meshRef.current) return;

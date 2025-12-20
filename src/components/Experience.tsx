@@ -7,14 +7,19 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import ChristmasTree from './ChristmasTree';
 import { useStore } from '../store/useStore';
 import { currentTheme } from '../config/theme';
+import { useIsMobile } from '../hooks/useMobile';
 
 const Experience: React.FC = () => {
     const toggleMode = useStore((state) => state.toggleMode);
+    const isMobile = useIsMobile();
 
     return (
         <div className="w-full h-screen relative">
             <Canvas
-                camera={{ position: [0, 4, 30], fov: 45 }}
+                camera={{
+                    position: isMobile ? [0, 2, 40] : [0, 4, 30],
+                    fov: isMobile ? 50 : 45
+                }}
                 gl={{ antialias: false, toneMapping: THREE.ReinhardToneMapping, toneMappingExposure: 1.5 }}
                 dpr={[1, 2]}
             >
@@ -22,19 +27,24 @@ const Experience: React.FC = () => {
 
                 <Suspense fallback={null}>
                     <Environment preset="lobby" />
-                    <ChristmasTree />
+                    <ChristmasTree isMobile={isMobile} />
                 </Suspense>
 
                 <EffectComposer>
                     <Bloom luminanceThreshold={0.5} mipmapBlur intensity={1.5} luminanceSmoothing={0.9} />
                 </EffectComposer>
 
-                <OrbitControls enablePan={false} enableZoom={true} minDistance={10} maxDistance={30} />
+                <OrbitControls
+                    enablePan={false}
+                    enableZoom={true}
+                    minDistance={isMobile ? 10 : 10}
+                    maxDistance={isMobile ? 30 : 30}
+                />
             </Canvas>
 
             {/* UI Overlay */}
-            <div className="absolute top-8 left-0 w-full flex flex-col items-center pointer-events-none gap-4">
-                <h1 className="text-4xl md:text-5xl font-bold text-center pointer-events-none"
+            <div className="absolute top-8 left-0 w-full flex flex-col items-center pointer-events-none gap-4 px-4">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center pointer-events-none break-words max-w-[90vw]"
                     style={{
                         background: `linear-gradient(135deg, ${currentTheme.heading.gradient.join(', ')})`,
                         WebkitBackgroundClip: 'text',
@@ -48,7 +58,7 @@ const Experience: React.FC = () => {
                 </h1>
                 <button
                     onClick={toggleMode}
-                    className="pointer-events-auto px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white font-light hover:bg-white/20 transition-all"
+                    className="pointer-events-auto px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white font-light hover:bg-white/20 transition-all text-sm sm:text-base"
                 >
                     Toggle Mode
                 </button>

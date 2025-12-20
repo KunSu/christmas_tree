@@ -81,7 +81,7 @@ const Foliage: React.FC = () => {
     const count = 60000; // More particles for density
     const chaosPositions = useMemo(() => generateChaosPositions(count, 20), []);
     // Use 12 layers as requested
-    const treePositions = useMemo(() => generateTreePositions(count, 12, 5, 12), []);
+    const treePositions = useMemo(() => generateTreePositions(count, 10, 5, 15), []);
 
     // Color attribute for mix of gold and snow
     const colors = useMemo(() => {

@@ -29,7 +29,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
 
     // Chaos position
     const chaosPos = useMemo(() => {
-        const p = generateChaosPositions(1, 20);
+        const p = generateChaosPositions(1, 10);
         return new THREE.Vector3(p[0], p[1], p[2]);
     }, []);
 
@@ -89,7 +89,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
             const fovRad = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
             const dist = 5;
             const heightAtDist = 2 * dist * Math.tan(fovRad / 2);
-            const s = heightAtDist * 0.8 * scale; // 40% of screen height, scaled by base scale
+            const s = heightAtDist * 0.4 * scale; // 40% of screen height, scaled by base scale
             targetScale.set(s, s, s);
 
             // Rotation: Face camera

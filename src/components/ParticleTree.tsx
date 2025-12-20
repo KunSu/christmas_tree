@@ -146,16 +146,20 @@ extend({ TreeMaterial, OrnamentMaterial, GarlandMaterial, IceLightMaterial });
 
 // --- Component ---
 
-const ParticleTree: React.FC = () => {
+interface ParticleTreeProps {
+    isMobile?: boolean;
+}
+
+const ParticleTree: React.FC<ParticleTreeProps> = ({ isMobile = false }) => {
     const treeMatRef = useRef<any>(null);
     const ornMatRef = useRef<any>(null);
     const garMatRef = useRef<any>(null);
     const iceMatRef = useRef<any>(null);
 
     // Generate Geometries
-    const treePositions = useMemo(() => generateTreeParticles(100000), []);
-    const ornamentPositions = useMemo(() => generateOrnamentPositions(300), []);
-    const garlandPositions = useMemo(() => generateGarlandParticles(2000), []);
+    const treePositions = useMemo(() => generateTreeParticles(50000), [isMobile]);
+    const ornamentPositions = useMemo(() => generateOrnamentPositions(150), [isMobile]);
+    const garlandPositions = useMemo(() => generateGarlandParticles(1000), [isMobile]);
 
     useFrame((state) => {
         if (treeMatRef.current) treeMatRef.current.uTime = state.clock.elapsedTime;
@@ -215,7 +219,7 @@ const ParticleTree: React.FC = () => {
             </points>
 
             {/* 3D Ornaments & Photos */}
-            <Ornaments />
+            <Ornaments isMobile={isMobile} />
 
             {/* Top Star */}
             <Star />
