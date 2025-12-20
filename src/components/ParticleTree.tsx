@@ -6,6 +6,7 @@ import { generateTreeParticles, generateOrnamentPositions, generateGarlandPartic
 import { useStore } from '../store/useStore';
 import Ornaments from './Ornaments';
 import Star from './Star';
+import { IceLightMaterial } from '../materials/IceLightMaterial';
 
 // --- Shaders ---
 
@@ -132,7 +133,9 @@ const GarlandMaterial = shaderMaterial(
     `
 );
 
-extend({ TreeMaterial, OrnamentMaterial, GarlandMaterial });
+
+
+extend({ TreeMaterial, OrnamentMaterial, GarlandMaterial, IceLightMaterial });
 
 // --- Component ---
 
@@ -140,6 +143,7 @@ const ParticleTree: React.FC = () => {
     const treeMatRef = useRef<any>(null);
     const ornMatRef = useRef<any>(null);
     const garMatRef = useRef<any>(null);
+    const iceMatRef = useRef<any>(null);
 
     // Generate Geometries
     const treePositions = useMemo(() => generateTreeParticles(100000), []);
@@ -150,6 +154,7 @@ const ParticleTree: React.FC = () => {
         if (treeMatRef.current) treeMatRef.current.uTime = state.clock.elapsedTime;
         if (ornMatRef.current) ornMatRef.current.uTime = state.clock.elapsedTime;
         if (garMatRef.current) garMatRef.current.uTime = state.clock.elapsedTime;
+        if (iceMatRef.current) iceMatRef.current.uTime = state.clock.elapsedTime;
     });
 
     return (
@@ -188,6 +193,18 @@ const ParticleTree: React.FC = () => {
                 </bufferGeometry>
                 {/* @ts-ignore */}
                 <garlandMaterial ref={garMatRef} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
+            </points>
+
+            {/* Ice Blue Moving Lights Overlay */}
+            <points raycast={() => { }}>
+                <bufferGeometry>
+                    <bufferAttribute
+                        attach="attributes-position"
+                        args={[garlandPositions, 3]}
+                    />
+                </bufferGeometry>
+                {/* @ts-ignore */}
+                <iceLightMaterial ref={iceMatRef} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
             </points>
 
             {/* 3D Ornaments & Photos */}

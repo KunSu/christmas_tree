@@ -13,7 +13,7 @@ const Experience: React.FC = () => {
     return (
         <div className="w-full h-screen relative">
             <Canvas
-                camera={{ position: [0, 4, 20], fov: 45 }}
+                camera={{ position: [0, 4, 30], fov: 45 }}
                 gl={{ antialias: false, toneMapping: THREE.ReinhardToneMapping, toneMappingExposure: 1.5 }}
                 dpr={[1, 2]}
             >

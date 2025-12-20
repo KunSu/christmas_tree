@@ -1,19 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, ThreeEvent, useThree } from '@react-three/fiber';
-import { Image, useCursor } from '@react-three/drei';
+import { Image, useCursor, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
 import { generateChaosPositions } from '../utils/positions';
 
 interface PhotoItemProps {
     url: string;
+    description?: string;
+    date?: string;
     position: [number, number, number];
     rotation: [number, number, number];
     scale: number;
     index: number;
 }
 
-const PhotoItem: React.FC<PhotoItemProps> = ({ url, position, rotation, scale, index }) => {
+const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position, rotation, scale, index }) => {
     const { camera } = useThree();
     const mode = useStore((state) => state.mode);
     const ref = useRef<THREE.Group>(null);
@@ -204,7 +206,8 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, position, rotation, scale, i
                 </mesh>
             )}
 
-            <group ref={ref} onClick={handleClick} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
+            <group ref={ref} position={position} onClick={handleClick} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
+
                 {/* Polaroid Frame */}
                 <mesh position={[0, -0.1, -0.02]}>
                     <boxGeometry args={[1.2, 1.4, 0.05]} />
@@ -212,18 +215,43 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, position, rotation, scale, i
                 </mesh>
 
                 {/* Photo */}
-                <mesh position={[0, 0, 0.01]}>
-                    <planeGeometry args={[1, 1]} />
-                    <meshBasicMaterial side={THREE.DoubleSide}>
-                        <Image url={url} transparent />
-                    </meshBasicMaterial>
-                </mesh>
+                <Image
+                    url={url}
+                    position={[0, 0, 0.01]}
+                    scale={[1, 1]}
+                    transparent
+                />
+
+                {/* Date on Front */}
+                {date && (
+                    <Text
+                        position={[0, -0.65, 0.02]}
+                        fontSize={0.1}
+                        color="black"
+                        anchorX="center"
+                        anchorY="middle"
+                    >
+                        {date}
+                    </Text>
+                )}
 
                 {/* Back of Photo (Message) */}
                 <mesh position={[0, 0, -0.051]} rotation={[0, Math.PI, 0]}>
                     <planeGeometry args={[1, 1]} />
                     <meshStandardMaterial color="#ffdddd" />
-                    {/* Text or texture could go here */}
+                    {description && (
+                        <Text
+                            position={[0, 0, 0.01]}
+                            fontSize={0.08}
+                            color="black"
+                            maxWidth={0.8}
+                            textAlign="center"
+                            anchorX="center"
+                            anchorY="middle"
+                        >
+                            {description}
+                        </Text>
+                    )}
                 </mesh>
             </group>
         </>

@@ -22,7 +22,7 @@ export const generateTreeParticles = (count: number): Float32Array => {
         const layerIndex = Math.min(Math.floor(Math.pow(Math.random(), 2.5) * LAYERS), LAYERS - 1);
 
         // Normalized progress (0 = bottom, 1 = top)
-        const layerProgress = layerIndex / LAYERS;
+        const layerProgress = layerIndex / (LAYERS - 1);
 
         // Calculate base Y for this layer
         // We want the tree to be centered around Y=0 or slightly above
@@ -47,7 +47,8 @@ export const generateTreeParticles = (count: number): Float32Array => {
         // --- Droop Calculation ---
         // Particles further out should droop more.
         // Droop factor increases with radius.
-        const droopFactor = (r / layerRadius); // 0 at center, 1 at edge
+        // Droop factor increases with radius.
+        const droopFactor = layerRadius > 0.001 ? (r / layerRadius) : 0; // 0 at center, 1 at edge
         const droop = droopFactor * droopFactor * 1.5; // Quadratic droop, max 1.5 units
 
         // --- Volume/Thickness ---
@@ -96,7 +97,10 @@ export const generateOrnamentPositions = (count: number, options: { radiusMin?: 
     // Distribute ornaments across layers
     // Bottom (layerIndex=0) should have more, Top (layerIndex=LAYERS-1) should have less
     for (let layerIndex = 0; layerIndex < LAYERS && currentOrnament < count; layerIndex++) {
-        const layerProgress = layerIndex / LAYERS;
+        let layerProgress = layerIndex / (LAYERS - 1);
+
+        // Avoid zero radius at the absolute tip for ornaments (prevent z-fighting with star)
+        if (layerProgress > 0.96) layerProgress = 0.96;
 
         // Number of ornaments in this layer
         let ornamentsInLayer: number;

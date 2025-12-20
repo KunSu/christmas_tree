@@ -1,7 +1,14 @@
 [
-    "photo1.png",
-    "photo2.png",
-    "photo1.png",
-    "photo2.png",
-    "photo1.png"
+    {
+        "id": "1",
+        "url": "/assets/photos/1.png",
+        "description": "A wonderful time with family.",
+        "date": "2023-12-25"
+    },
+    {
+        "id": "2",
+        "url": "/assets/photos/2.png",
+        "description": "Opening gifts by the tree.",
+        "date": "2023-12-24"
+    }
 ]

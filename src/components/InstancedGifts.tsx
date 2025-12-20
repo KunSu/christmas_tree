@@ -46,9 +46,9 @@ const InstancedGifts: React.FC<InstancedGiftsProps> = ({
     // Store current positions to interpolate
     const currentPositions = useMemo(() => {
         const arr = new Float32Array(count * 3);
-        chaosPositions.forEach((v, i) => arr[i] = v);
+        treePositions.forEach((v, i) => arr[i] = v);
         return arr;
-    }, [count, chaosPositions]);
+    }, [count, treePositions]);
 
     useFrame((state, delta) => {
         const target = mode === 'CHAOS' ? chaosPositions : treePositions;

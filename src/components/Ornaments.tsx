@@ -8,22 +8,29 @@ import { currentTheme } from '../config/theme';
 import InstancedGifts from './InstancedGifts';
 import PhotoItem from './PhotoItem';
 
+interface PhotoData {
+    id: string;
+    url: string;
+    description: string;
+    date: string;
+}
+
 // Helper for instanced ornaments
 const InstancedOrnaments = ({ count, color, scale, speedFactor, geometry, radiusMin, radiusMax }: any) => {
     const mode = useStore((state) => state.mode);
     const meshRef = useRef<THREE.InstancedMesh>(null);
     const dummy = useMemo(() => new THREE.Object3D(), []);
 
-    const chaosPositions = useMemo(() => generateChaosPositions(count, 25), [count]);
+    const chaosPositions = useMemo(() => generateChaosPositions(count, 15), [count]);
     const treePositions = useMemo(() => generateOrnamentPositions(count, { radiusMin, radiusMax }), [count, radiusMin, radiusMax]);
 
     // Store current positions to interpolate
     const currentPositions = useMemo(() => {
         const arr = new Float32Array(count * 3);
-        // Initialize with chaos
-        chaosPositions.forEach((v, i) => arr[i] = v);
+        // Initialize with tree positions (Formed state)
+        treePositions.forEach((v, i) => arr[i] = v);
         return arr;
-    }, [count, chaosPositions]);
+    }, [count, treePositions]);
 
     useFrame((state, delta) => {
         if (!meshRef.current) return;
@@ -68,7 +75,7 @@ const InstancedOrnaments = ({ count, color, scale, speedFactor, geometry, radius
 };
 
 const Ornaments: React.FC = () => {
-    const [photos, setPhotos] = useState<string[]>([]);
+    const [photos, setPhotos] = useState<PhotoData[]>([]);
 
     useEffect(() => {
         fetch('/assets/photos/photos.json')
@@ -110,8 +117,10 @@ const Ornaments: React.FC = () => {
             {/* Photos */}
             {photos.map((photo, i) => (
                 <PhotoItem
-                    key={`${photo}-${i}`}
-                    url={`/assets/photos/${photo}`}
+                    key={photo.id}
+                    url={photo.url}
+                    description={photo.description}
+                    date={photo.date}
                     index={i}
                     position={photoPositions[i % photoPositions.length] as [number, number, number]}
                     rotation={[0, 0, 0]}
