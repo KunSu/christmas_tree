@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { shaderMaterial } from '@react-three/drei';
 import { generateTreeParticles, generateOrnamentPositions, generateGarlandParticles } from '../utils/treeUtils';
 import { useStore } from '../store/useStore';
+import { currentTheme } from '../config/theme';
 import Ornaments from './Ornaments';
 import Star from './Star';
 import { IceLightMaterial } from '../materials/IceLightMaterial';
@@ -13,13 +14,16 @@ import { IceLightMaterial } from '../materials/IceLightMaterial';
 const TreeMaterial = shaderMaterial(
     {
         uTime: 0,
-        uColor1: new THREE.Color('#ffffff'), // Snow/White
-        uColor2: new THREE.Color('#e0f7fa'), // Ice Blue
-        uColor3: new THREE.Color('#f8bbd0'), // Pink
+        uColor1: new THREE.Color(currentTheme.tree.foliage[0]), // Snow/White
+        uColor2: new THREE.Color(currentTheme.tree.foliage[1]), // Ice Blue
+        uColor3: new THREE.Color(currentTheme.tree.foliage[2]), // Pink
     },
     // Vertex Shader
     `
     uniform float uTime;
+    uniform vec3 uColor1;
+    uniform vec3 uColor2;
+    uniform vec3 uColor3;
     varying vec3 vColor;
     varying float vAlpha;
 
@@ -50,9 +54,9 @@ const TreeMaterial = shaderMaterial(
         // Color mixing based on position
         // Mix white/blue/pink based on height and random noise
         float noise = random(pos.xy);
-        vColor = mix(vec3(1.0), vec3(0.88, 0.97, 0.98), pos.y / 20.0 + 0.5); // White to Blue
+        vColor = mix(uColor1, uColor2, pos.y / 20.0 + 0.5); // White to Blue
         if (noise > 0.7) {
-             vColor = mix(vColor, vec3(0.97, 0.73, 0.81), 0.5); // Add Pink
+             vColor = mix(vColor, uColor3, 0.5); // Add Pink
         }
 
         vAlpha = 0.6 + 0.4 * sin(uTime * 3.0 + noise * 10.0); // Twinkle alpha
@@ -80,6 +84,7 @@ const TreeMaterial = shaderMaterial(
 const OrnamentMaterial = shaderMaterial(
     {
         uTime: 0,
+        uColor: new THREE.Color(currentTheme.tree.ornamentGlow),
     },
     `
     uniform float uTime;
@@ -94,14 +99,14 @@ const OrnamentMaterial = shaderMaterial(
     }
     `,
     `
+    uniform vec3 uColor;
     varying float vAlpha;
     void main() {
         float r = length(gl_PointCoord - 0.5);
         if (r > 0.5) discard;
         float glow = 1.0 - (r * 2.0);
         glow = pow(glow, 3.0);
-        // Gold color
-        gl_FragColor = vec4(1.0, 0.84, 0.0, vAlpha * glow); 
+        gl_FragColor = vec4(uColor, vAlpha * glow); 
     }
     `
 );
@@ -109,6 +114,7 @@ const OrnamentMaterial = shaderMaterial(
 const GarlandMaterial = shaderMaterial(
     {
         uTime: 0,
+        uColor: new THREE.Color(currentTheme.tree.garland),
     },
     `
     uniform float uTime;
@@ -123,12 +129,13 @@ const GarlandMaterial = shaderMaterial(
     }
     `,
     `
+    uniform vec3 uColor;
     varying float vAlpha;
     void main() {
         float r = length(gl_PointCoord - 0.5);
         if (r > 0.5) discard;
         float glow = 1.0 - (r * 2.0);
-        gl_FragColor = vec4(1.0, 1.0, 0.8, vAlpha * glow); // Warm white
+        gl_FragColor = vec4(uColor, vAlpha * glow); // Warm white
     }
     `
 );

@@ -3,6 +3,7 @@ import { useFrame, ThreeEvent, useThree } from '@react-three/fiber';
 import { Image, useCursor, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
+import { currentTheme } from '../config/theme';
 import { generateChaosPositions } from '../utils/positions';
 
 interface PhotoItemProps {
@@ -211,7 +212,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                 {/* Polaroid Frame */}
                 <mesh position={[0, -0.1, -0.02]}>
                     <boxGeometry args={[1.2, 1.4, 0.05]} />
-                    <meshStandardMaterial color="#ffffff" roughness={0.2} metalness={0.1} side={THREE.DoubleSide} />
+                    <meshStandardMaterial color={currentTheme.photo.frame} roughness={0.2} metalness={0.1} side={THREE.DoubleSide} />
                 </mesh>
 
                 {/* Photo */}
@@ -227,7 +228,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                     <Text
                         position={[0, -0.65, 0.02]}
                         fontSize={0.1}
-                        color="black"
+                        color={currentTheme.photo.text}
                         anchorX="center"
                         anchorY="middle"
                     >
@@ -238,12 +239,12 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                 {/* Back of Photo (Message) */}
                 <mesh position={[0, 0, -0.051]} rotation={[0, Math.PI, 0]}>
                     <planeGeometry args={[1, 1]} />
-                    <meshStandardMaterial color="#ffdddd" />
+                    <meshStandardMaterial color={currentTheme.photo.back} />
                     {description && (
                         <Text
                             position={[0, 0, 0.01]}
                             fontSize={0.08}
-                            color="black"
+                            color={currentTheme.photo.text}
                             maxWidth={0.8}
                             textAlign="center"
                             anchorX="center"

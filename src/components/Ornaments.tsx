@@ -109,7 +109,7 @@ const Ornaments: React.FC = () => {
             <InstancedOrnaments count={1200} color={currentTheme.colors.lights} scale={0.08} speedFactor={1.5} geometry={sphereGeo} radiusMin={0.6} radiusMax={1.05} />
 
             {/* Gifts - Outer Layer (0.9 - 1.1) */}
-            <InstancedGifts count={200} boxColor="hsla(317, 100%, 94%, 1.00)" ribbonColor="#dc143c" scale={0.35} speedFactor={0.3} radiusMin={0.9} radiusMax={1.1} />
+            <InstancedGifts count={200} boxColor={currentTheme.gift.box} ribbonColor={currentTheme.gift.ribbon} scale={0.35} speedFactor={0.3} radiusMin={0.9} radiusMax={1.1} />
 
             {/* Candy - Progressive Distribution */}
             {/* <InstancedOrnaments count={1800} color={currentTheme.colors.candy} scale={0.2} speedFactor={0.6} geometry={new THREE.CylinderGeometry(0.5, 0.5, 2, 8)} /> */}

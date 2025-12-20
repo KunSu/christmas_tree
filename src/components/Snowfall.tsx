@@ -1,6 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { currentTheme } from '../config/theme';
 
 const GoldDust: React.FC = () => {
   const count = 10000; // More snow for full coverage
@@ -20,7 +21,7 @@ const GoldDust: React.FC = () => {
       const z = Math.random() * 60 - 30;
       // White color for snow
       const isGold = Math.random() > 0.5;
-      const color = isGold ? new THREE.Color("#FFD700") : new THREE.Color("#C0C0C0");
+      const color = isGold ? new THREE.Color(currentTheme.snow.color1) : new THREE.Color(currentTheme.snow.color2);
 
       temp.push({ t, factor, speed, x, y, z, color });
     }
@@ -71,7 +72,7 @@ const GoldDust: React.FC = () => {
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, count]} raycast={() => { }}>
       <dodecahedronGeometry args={[0.2, 0]} />
-      <meshStandardMaterial emissive="#ffffff" emissiveIntensity={0.8} toneMapped={false} vertexColors />
+      <meshStandardMaterial emissive={currentTheme.snow.emissive} emissiveIntensity={0.8} toneMapped={false} vertexColors />
     </instancedMesh >
   );
 };

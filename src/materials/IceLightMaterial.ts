@@ -1,10 +1,11 @@
 import { shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
+import { currentTheme } from '../config/theme';
 
 export const IceLightMaterial = shaderMaterial(
     {
         uTime: 0,
-        uColor: new THREE.Color('#a0e6ff'), // Ice Blue
+        uColor: new THREE.Color(currentTheme.tree.iceLight), // Ice Blue
     },
     // Vertex Shader
     `

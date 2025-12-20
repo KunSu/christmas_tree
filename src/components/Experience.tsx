@@ -6,6 +6,7 @@ import { Environment, OrbitControls } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import ChristmasTree from './ChristmasTree';
 import { useStore } from '../store/useStore';
+import { currentTheme } from '../config/theme';
 
 const Experience: React.FC = () => {
     const toggleMode = useStore((state) => state.toggleMode);
@@ -17,7 +18,7 @@ const Experience: React.FC = () => {
                 gl={{ antialias: false, toneMapping: THREE.ReinhardToneMapping, toneMappingExposure: 1.5 }}
                 dpr={[1, 2]}
             >
-                <color attach="background" args={['#001a13']} />
+                <color attach="background" args={[currentTheme.background]} />
 
                 <Suspense fallback={null}>
                     <Environment preset="lobby" />
@@ -32,7 +33,19 @@ const Experience: React.FC = () => {
             </Canvas>
 
             {/* UI Overlay */}
-            <div className="absolute top-8 left-0 w-full flex justify-center pointer-events-none">
+            <div className="absolute top-8 left-0 w-full flex flex-col items-center pointer-events-none gap-4">
+                <h1 className="text-4xl md:text-5xl font-bold text-center pointer-events-none"
+                    style={{
+                        background: `linear-gradient(135deg, ${currentTheme.heading.gradient.join(', ')})`,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        textShadow: `0 0 20px ${currentTheme.heading.shadow}`,
+                        filter: `drop-shadow(0 2px 10px ${currentTheme.heading.glow})`,
+                        animation: 'glow 2s ease-in-out infinite alternate'
+                    }}>
+                    Merry Christmas
+                </h1>
                 <button
                     onClick={toggleMode}
                     className="pointer-events-auto px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white font-light hover:bg-white/20 transition-all"
@@ -40,6 +53,17 @@ const Experience: React.FC = () => {
                     Toggle Mode
                 </button>
             </div>
+
+            <style jsx>{`
+                @keyframes glow {
+                    from {
+                        filter: drop-shadow(0 2px 10px ${currentTheme.heading.glow});
+                    }
+                    to {
+                        filter: drop-shadow(0 2px 20px ${currentTheme.heading.shadow});
+                    }
+                }
+            `}</style>
         </div>
     );
 };

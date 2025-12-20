@@ -1,12 +1,13 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { currentTheme } from '../config/theme';
 
 const Star: React.FC = () => {
     const meshRef = useRef<THREE.Mesh>(null);
     const glowRef = useRef<THREE.Mesh>(null);
 
-    // Create an 8-pointed star shape
+    // ... (starShape logic remains same)
     const starShape = React.useMemo(() => {
         const shape = new THREE.Shape();
         const outerRadius = 0.4;
@@ -52,7 +53,7 @@ const Star: React.FC = () => {
             <mesh ref={glowRef}>
                 <extrudeGeometry args={[starShape, { ...extrudeSettings, depth: 0.01 }]} />
                 <meshBasicMaterial
-                    color="#FFE680"
+                    color={currentTheme.tree.star.glow}
                     transparent
                     opacity={0.4}
                 />
@@ -62,8 +63,8 @@ const Star: React.FC = () => {
             <mesh ref={meshRef}>
                 <extrudeGeometry args={[starShape, extrudeSettings]} />
                 <meshStandardMaterial
-                    color="#FFFACD"
-                    emissive="#FFD700"
+                    color={currentTheme.tree.star.main}
+                    emissive={currentTheme.tree.star.emissive}
                     emissiveIntensity={3}
                     roughness={0.1}
                     metalness={0.8}
@@ -74,8 +75,8 @@ const Star: React.FC = () => {
             <mesh position={[0, 0, 0.1]}>
                 <circleGeometry args={[0.25, 32]} />
                 <meshStandardMaterial
-                    color="#FFD700"
-                    emissive="#FFA500"
+                    color={currentTheme.tree.star.emissive}
+                    emissive={currentTheme.tree.star.glow}
                     emissiveIntensity={2}
                     roughness={0.2}
                     metalness={1}
@@ -85,7 +86,7 @@ const Star: React.FC = () => {
             {/* Point light for glow effect */}
             <pointLight
                 position={[0, 0, 0]}
-                color="#FFE680"
+                color={currentTheme.tree.star.glow}
                 intensity={2}
                 distance={15}
                 decay={2}
@@ -94,7 +95,7 @@ const Star: React.FC = () => {
             {/* Additional ambient glow */}
             <pointLight
                 position={[0, 0, 0.5]}
-                color="#FFFACD"
+                color={currentTheme.tree.star.main}
                 intensity={1}
                 distance={8}
                 decay={2}
