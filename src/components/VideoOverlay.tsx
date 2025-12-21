@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const VideoOverlay: React.FC = () => {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [hasAttemptedAutoplay, setHasAttemptedAutoplay] = useState(false);
     const [readyToPlay, setReadyToPlay] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -24,12 +23,31 @@ const VideoOverlay: React.FC = () => {
     };
 
     useEffect(() => {
-        // Mark as ready after 3s
-        const timer = setTimeout(() => {
-            setReadyToPlay(true);
-        }, 3000);
+        const handleInteraction = () => {
+            // Start the 3s timer after first interaction
+            setTimeout(() => {
+                setReadyToPlay(true);
+            }, 3000);
 
-        return () => clearTimeout(timer);
+            // Remove listeners immediately after first interaction
+            cleanup();
+        };
+
+        const cleanup = () => {
+            window.removeEventListener('click', handleInteraction);
+            window.removeEventListener('touchstart', handleInteraction);
+            window.removeEventListener('keydown', handleInteraction);
+            window.removeEventListener('mousedown', handleInteraction);
+            window.removeEventListener('pointerdown', handleInteraction);
+        };
+
+        window.addEventListener('click', handleInteraction);
+        window.addEventListener('touchstart', handleInteraction);
+        window.addEventListener('keydown', handleInteraction);
+        window.addEventListener('mousedown', handleInteraction);
+        window.addEventListener('pointerdown', handleInteraction);
+
+        return cleanup;
     }, []);
 
     useEffect(() => {
@@ -42,32 +60,14 @@ const VideoOverlay: React.FC = () => {
                         setIsPlaying(true);
                     })
                     .catch(() => {
-                        console.log("Autoplay blocked, waiting for interaction.");
+                        console.log("Autoplay blocked, waiting for manual interaction.");
                     });
             }
         };
 
-        // Try initial autoplay once
-        if (!hasAttemptedAutoplay) {
-            attemptPlay();
-            setHasAttemptedAutoplay(true);
-        }
-
-        // Listen for any user interaction to trigger audio if blocked
-        const handleInteraction = () => {
-            if (!isPlaying) {
-                attemptPlay();
-            }
-        };
-
-        window.addEventListener('click', handleInteraction);
-        window.addEventListener('touchstart', handleInteraction);
-
-        return () => {
-            window.removeEventListener('click', handleInteraction);
-            window.removeEventListener('touchstart', handleInteraction);
-        };
-    }, [readyToPlay, isPlaying, hasAttemptedAutoplay]);
+        // Try initial autoplay once when ready
+        attemptPlay();
+    }, [readyToPlay]);
 
     return (
         <>
