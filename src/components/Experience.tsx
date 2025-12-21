@@ -8,6 +8,7 @@ import ChristmasTree from './ChristmasTree';
 import { useStore } from '../store/useStore';
 import { currentTheme } from '../config/theme';
 import { useIsMobile } from '../hooks/useMobile';
+import VideoOverlay from './VideoOverlay';
 
 const Experience: React.FC = () => {
     const toggleMode = useStore((state) => state.toggleMode);
@@ -74,6 +75,7 @@ const Experience: React.FC = () => {
                     }
                 }
             `}</style>
+            <VideoOverlay />
         </div>
     );
 };

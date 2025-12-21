@@ -82,7 +82,7 @@ const Ornaments: React.FC<OrnamentsProps> = ({ isMobile = false }) => {
     const [photos, setPhotos] = useState<PhotoData[]>([]);
 
     useEffect(() => {
-        fetch('/assets/photos/photos.json')
+        fetch('/christmas_tree/assets/photos/photos.json')
             .then(res => res.json())
             .then(data => setPhotos(data))
             .catch(err => console.error("Failed to load photos", err));

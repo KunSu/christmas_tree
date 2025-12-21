@@ -1,121 +1,121 @@
 [
     {
         "id": "1",
-        "url": "/assets/photos/1.png",
+        "url": "/christmas_tree/assets/photos/1.png",
         "description": "A wonderful time with family.",
         "date": "2023-12-25"
     },
     {
         "id": "2",
-        "url": "/assets/photos/2.png",
+        "url": "/christmas_tree/assets/photos/2.png",
         "description": "Opening gifts by the tree.",
         "date": "2023-12-24"
     },
     {
         "id": "3",
-        "url": "/assets/photos/3.png",
+        "url": "/christmas_tree/assets/photos/3.png",
         "description": "Christmas magic in the air.",
         "date": "2023-12-20"
     },
     {
         "id": "4",
-        "url": "/assets/photos/4.png",
+        "url": "/christmas_tree/assets/photos/4.png",
         "description": "Cozy winter vibes.",
         "date": "2023-12-21"
     },
     {
         "id": "5",
-        "url": "/assets/photos/5.png",
+        "url": "/christmas_tree/assets/photos/5.png",
         "description": "Spreading holiday cheer.",
         "date": "2023-12-22"
     },
     {
         "id": "6",
-        "url": "/assets/photos/6.png",
+        "url": "/christmas_tree/assets/photos/6.png",
         "description": "Festive decorations everywhere.",
         "date": "2023-12-23"
     },
     {
         "id": "7",
-        "url": "/assets/photos/7.png",
+        "url": "/christmas_tree/assets/photos/7.png",
         "description": "Warm memories by the fire.",
         "date": "2023-12-24"
     },
     {
         "id": "8",
-        "url": "/assets/photos/8.png",
+        "url": "/christmas_tree/assets/photos/8.png",
         "description": "Santa's little helpers.",
         "date": "2023-12-25"
     },
     {
         "id": "9",
-        "url": "/assets/photos/9.png",
+        "url": "/christmas_tree/assets/photos/9.png",
         "description": "Under the mistletoe.",
         "date": "2023-12-25"
     },
     {
         "id": "10",
-        "url": "/assets/photos/10.png",
+        "url": "/christmas_tree/assets/photos/10.png",
         "description": "Holiday treats and sweets.",
         "date": "2023-12-24"
     },
     {
         "id": "11",
-        "url": "/assets/photos/11.png",
+        "url": "/christmas_tree/assets/photos/11.png",
         "description": "Twinkling lights and joy.",
         "date": "2023-12-23"
     },
     {
         "id": "12",
-        "url": "/assets/photos/12.png",
+        "url": "/christmas_tree/assets/photos/12.png",
         "description": "A season of giving.",
         "date": "2023-12-22"
     },
     {
         "id": "13",
-        "url": "/assets/photos/13.png",
+        "url": "/christmas_tree/assets/photos/13.png",
         "description": "Reindeer games.",
         "date": "2023-12-21"
     },
     {
         "id": "14",
-        "url": "/assets/photos/14.png",
+        "url": "/christmas_tree/assets/photos/14.png",
         "description": "Snowy adventures.",
         "date": "2023-12-20"
     },
     {
         "id": "15",
-        "url": "/assets/photos/15.png",
+        "url": "/christmas_tree/assets/photos/15.png",
         "description": "The best gift is family.",
         "date": "2023-12-19"
     },
     {
         "id": "16",
-        "url": "/assets/photos/16.png",
+        "url": "/christmas_tree/assets/photos/16.png",
         "description": "Making spirits bright.",
         "date": "2023-12-18"
     },
     {
         "id": "17",
-        "url": "/assets/photos/17.png",
+        "url": "/christmas_tree/assets/photos/17.png",
         "description": "Decking the halls.",
         "date": "2023-12-17"
     },
     {
         "id": "18",
-        "url": "/assets/photos/18.png",
+        "url": "/christmas_tree/assets/photos/18.png",
         "description": "Winter wonderland.",
         "date": "2023-12-16"
     },
     {
         "id": "19",
-        "url": "/assets/photos/19.png",
+        "url": "/christmas_tree/assets/photos/19.png",
         "description": "Christmas countdown.",
         "date": "2023-12-15"
     },
     {
         "id": "20",
-        "url": "/assets/photos/20.png",
+        "url": "/christmas_tree/assets/photos/20.png",
         "description": "Joy to the world.",
         "date": "2023-12-14"
     }

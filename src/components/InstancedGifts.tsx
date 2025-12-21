@@ -21,8 +21,8 @@ interface InstancedGiftsProps {
  */
 const InstancedGifts: React.FC<InstancedGiftsProps> = ({
     count,
-    boxColor = '#3bf73eff',  // Dark green
-    ribbonColor = '#dc143c', // Crimson red
+    boxColor = '#ffb6c1',  // Light Pastel Pink
+    ribbonColor = '#ff69b4', // Hot Pink / Satin Pink
     scale,
     speedFactor,
     radiusMin,
@@ -103,25 +103,25 @@ const InstancedGifts: React.FC<InstancedGiftsProps> = ({
 
             // Update bow left loop
             if (bowLeftRef.current) {
-                dummy.position.copy(pos);
+                dummy.position.copy(pos).add(new THREE.Vector3(-0.25 * scale, 0.55 * scale, 0).applyEuler(rotation));
                 dummy.rotation.copy(rotation);
-                dummy.scale.setScalar(scale);
+                dummy.scale.setScalar(scale * 1.2); // Slightly larger for better detail
                 dummy.updateMatrix();
                 bowLeftRef.current.setMatrixAt(i, dummy.matrix);
             }
 
             // Update bow right loop
             if (bowRightRef.current) {
-                dummy.position.copy(pos);
+                dummy.position.copy(pos).add(new THREE.Vector3(0.25 * scale, 0.55 * scale, 0).applyEuler(rotation));
                 dummy.rotation.copy(rotation);
-                dummy.scale.setScalar(scale);
+                dummy.scale.setScalar(scale * 1.2);
                 dummy.updateMatrix();
                 bowRightRef.current.setMatrixAt(i, dummy.matrix);
             }
 
             // Update bow knot
             if (bowKnotRef.current) {
-                dummy.position.copy(pos);
+                dummy.position.copy(pos).add(new THREE.Vector3(0, 0.55 * scale, 0).applyEuler(rotation));
                 dummy.rotation.copy(rotation);
                 dummy.scale.setScalar(scale);
                 dummy.updateMatrix();
@@ -138,50 +138,127 @@ const InstancedGifts: React.FC<InstancedGiftsProps> = ({
         if (bowKnotRef.current) bowKnotRef.current.instanceMatrix.needsUpdate = true;
     });
 
-    // Geometries
-    const boxGeo = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
-    const hRibbonGeo = useMemo(() => new THREE.BoxGeometry(1.05, 0.15, 0.15), []);
-    const vRibbonGeo = useMemo(() => new THREE.BoxGeometry(0.15, 1.05, 0.15), []);
+    // Helper to create a rounded box geometry for instancing
+    const boxGeo = useMemo(() => {
+        const width = 1, height = 1, depth = 1, radius = 0.1, smoothness = 8;
+        const shape = new THREE.Shape();
+        const eps = 0.00001;
+        const radiusVal = radius - eps;
+
+        shape.absarc(radiusVal, radiusVal, radiusVal, -Math.PI / 2, -Math.PI, true);
+        shape.absarc(radiusVal, height - radiusVal, radiusVal, Math.PI, Math.PI / 2, true);
+        shape.absarc(width - radiusVal, height - radiusVal, radiusVal, Math.PI / 2, 0, true);
+        shape.absarc(width - radiusVal, radiusVal, radiusVal, 0, -Math.PI / 2, true);
+
+        const geo = new THREE.ExtrudeGeometry(shape, {
+            depth: depth - radius * 2,
+            bevelEnabled: true,
+            bevelSegments: smoothness * 2,
+            steps: 1,
+            bevelSize: radiusVal,
+            bevelThickness: radius,
+            curveSegments: smoothness
+        });
+
+        geo.center();
+        return geo;
+    }, []);
+
+    const hRibbonGeo = useMemo(() => new THREE.BoxGeometry(1.02, 0.12, 0.14), []);
+    const vRibbonGeo = useMemo(() => new THREE.BoxGeometry(0.14, 1.02, 0.12), []);
+
     const bowLoopGeo = useMemo(() => {
-        const geo = new THREE.TorusGeometry(0.15, 0.05, 8, 12);
+        // TorusKnot gives a more "fabric fold" look than a simple Torus
+        const geo = new THREE.TorusKnotGeometry(0.12, 0.04, 64, 8, 2, 3);
         geo.rotateZ(Math.PI / 2);
         return geo;
     }, []);
-    const bowKnotGeo = useMemo(() => new THREE.SphereGeometry(0.08, 8, 8), []);
+
+    const bowKnotGeo = useMemo(() => new THREE.SphereGeometry(0.08, 24, 24), []);
 
     return (
         <group>
-            {/* Main Gift Boxes (Green) */}
+            {/* Main Gift Boxes (Matte Pastel Pink) */}
             <instancedMesh ref={boxRef} args={[boxGeo, undefined, count]} raycast={() => { }}>
-                <meshStandardMaterial color={boxColor} roughness={0.4} metalness={0.1} />
+                <meshStandardMaterial
+                    color={boxColor}
+                    roughness={0.85}
+                    metalness={0.05}
+                />
             </instancedMesh>
 
-            {/* Horizontal Ribbons (Red) */}
+            {/* Horizontal Ribbons (Satin Pink) */}
             <instancedMesh ref={hRibbonRef} args={[hRibbonGeo, undefined, count]} raycast={() => { }}>
-                <meshStandardMaterial color={ribbonColor} roughness={0.3} metalness={0.6} />
+                <meshPhysicalMaterial
+                    color={ribbonColor}
+                    roughness={0.2}
+                    metalness={0.4}
+                    clearcoat={0.5}
+                    clearcoatRoughness={0.1}
+                    sheen={1}
+                    sheenRoughness={0.5}
+                    sheenColor={new THREE.Color('#ffffff')}
+                />
             </instancedMesh>
 
-            {/* Vertical Ribbons (Red) */}
+            {/* Vertical Ribbons (Satin Pink) */}
             <instancedMesh ref={vRibbonRef} args={[vRibbonGeo, undefined, count]} raycast={() => { }}>
-                <meshStandardMaterial color={ribbonColor} roughness={0.3} metalness={0.6} />
+                <meshPhysicalMaterial
+                    color={ribbonColor}
+                    roughness={0.2}
+                    metalness={0.4}
+                    clearcoat={0.5}
+                    clearcoatRoughness={0.1}
+                    sheen={1}
+                    sheenRoughness={0.5}
+                    sheenColor={new THREE.Color('#ffffff')}
+                />
             </instancedMesh>
 
-            {/* Bow Left Loop (Red) */}
-            <instancedMesh ref={bowLeftRef} args={[bowLoopGeo, undefined, count]} position={[-0.25, 0.55, 0]} raycast={() => { }}>
-                <meshStandardMaterial color={ribbonColor} roughness={0.3} metalness={0.6} />
+            {/* Bow Left Loop (Satin Pink) */}
+            <instancedMesh ref={bowLeftRef} args={[bowLoopGeo, undefined, count]} raycast={() => { }}>
+                <meshPhysicalMaterial
+                    color={ribbonColor}
+                    roughness={0.2}
+                    metalness={0.4}
+                    clearcoat={0.5}
+                    clearcoatRoughness={0.1}
+                    sheen={1}
+                    sheenRoughness={0.5}
+                    sheenColor={new THREE.Color('#ffffff')}
+                />
             </instancedMesh>
 
-            {/* Bow Right Loop (Red) */}
-            <instancedMesh ref={bowRightRef} args={[bowLoopGeo, undefined, count]} position={[0.25, 0.55, 0]} raycast={() => { }}>
-                <meshStandardMaterial color={ribbonColor} roughness={0.3} metalness={0.6} />
+            {/* Bow Right Loop (Satin Pink) */}
+            <instancedMesh ref={bowRightRef} args={[bowLoopGeo, undefined, count]} raycast={() => { }}>
+                <meshPhysicalMaterial
+                    color={ribbonColor}
+                    roughness={0.2}
+                    metalness={0.4}
+                    clearcoat={0.5}
+                    clearcoatRoughness={0.1}
+                    sheen={1}
+                    sheenRoughness={0.5}
+                    sheenColor={new THREE.Color('#ffffff')}
+                />
             </instancedMesh>
 
-            {/* Bow Knot (Red) */}
-            <instancedMesh ref={bowKnotRef} args={[bowKnotGeo, undefined, count]} position={[0, 0.55, 0]} raycast={() => { }}>
-                <meshStandardMaterial color={ribbonColor} roughness={0.3} metalness={0.6} />
+            {/* Bow Knot (Satin Pink) */}
+            <instancedMesh ref={bowKnotRef} args={[bowKnotGeo, undefined, count]} raycast={() => { }}>
+                <meshPhysicalMaterial
+                    color={ribbonColor}
+                    roughness={0.2}
+                    metalness={0.4}
+                    clearcoat={0.5}
+                    clearcoatRoughness={0.1}
+                    sheen={1}
+                    sheenRoughness={0.5}
+                    sheenColor={new THREE.Color('#ffffff')}
+                />
             </instancedMesh>
         </group>
     );
 };
+
 
 export default InstancedGifts;
