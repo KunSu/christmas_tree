@@ -120,20 +120,23 @@ const Ornaments: React.FC<OrnamentsProps> = ({ isMobile = false }) => {
             {/* <InstancedOrnaments count={1800} color={currentTheme.colors.candy} scale={0.2} speedFactor={0.6} geometry={new THREE.CylinderGeometry(0.5, 0.5, 2, 8)} /> */}
 
             {/* Photos */}
-            {photos.map((photo, i) => (
-                <PhotoItem
-                    key={photo.id}
-                    url={photo.url}
-                    description={photo.description}
-                    date={photo.date}
-                    index={i}
-                    position={photoPositions[i % photoPositions.length] as [number, number, number]}
-                    rotation={[0, 0, 0]}
-                    scale={0.8}
-                />
-            ))}
+            <Suspense fallback={null}>
+                {photos.map((photo, i) => (
+                    <PhotoItem
+                        key={photo.id}
+                        url={photo.url}
+                        description={photo.description}
+                        date={photo.date}
+                        index={i}
+                        position={photoPositions[i % photoPositions.length] as [number, number, number]}
+                        rotation={[0, 0, 0]}
+                        scale={0.8}
+                    />
+                ))}
+            </Suspense>
         </group>
     );
 };
 
+import { Suspense } from 'react';
 export default Ornaments;

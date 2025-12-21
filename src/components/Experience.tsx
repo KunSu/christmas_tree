@@ -1,21 +1,37 @@
 'use client';
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Environment, OrbitControls } from '@react-three/drei';
+import { Environment, OrbitControls, useProgress } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import ChristmasTree from './ChristmasTree';
 import { useStore } from '../store/useStore';
 import { currentTheme } from '../config/theme';
 import { useIsMobile } from '../hooks/useMobile';
 import VideoOverlay from './VideoOverlay';
+import LoadingScreen from './LoadingScreen';
 
 const Experience: React.FC = () => {
     const toggleMode = useStore((state) => state.toggleMode);
     const isMobile = useIsMobile();
+    const { active, progress } = useProgress();
+    const [started, setStarted] = useState(false);
+
+    // Fade out loading screen only after initial assets are loaded
+    useEffect(() => {
+        if (!active && progress === 100) {
+            // Small delay for smooth transition
+            const timer = setTimeout(() => {
+                setStarted(true);
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [active, progress]);
 
     return (
         <div className="w-full h-screen relative">
+            <LoadingScreen started={started} />
+
             <Canvas
                 camera={{
                     position: isMobile ? [0, 2, 40] : [0, 4, 30],
@@ -44,7 +60,7 @@ const Experience: React.FC = () => {
             </Canvas>
 
             {/* UI Overlay */}
-            <div className="absolute top-8 left-0 w-full flex flex-col items-center pointer-events-none gap-4 px-4">
+            <div className={`absolute top-8 left-0 w-full flex flex-col items-center pointer-events-none gap-4 px-4 transition-opacity duration-1000 ${started ? 'opacity-100' : 'opacity-0'}`}>
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center pointer-events-none break-words max-w-[90vw]"
                     style={{
                         background: `linear-gradient(135deg, ${currentTheme.heading.gradient.join(', ')})`,
@@ -61,7 +77,7 @@ const Experience: React.FC = () => {
                     onClick={toggleMode}
                     className="pointer-events-auto px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white font-light hover:bg-white/20 transition-all text-sm sm:text-base"
                 >
-                    Toggle Mode
+                    Memories
                 </button>
             </div>
 
