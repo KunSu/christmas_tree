@@ -43,7 +43,7 @@ const Experience: React.FC = () => {
                 <color attach="background" args={[currentTheme.background]} />
 
                 <Suspense fallback={null}>
-                    <Environment preset="lobby" />
+                    <Environment files="/christmas_tree/assets/environment/st_fagans_interior_1k.hdr" />
                     <ChristmasTree isMobile={isMobile} />
                 </Suspense>
 
