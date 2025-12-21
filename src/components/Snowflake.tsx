@@ -78,12 +78,12 @@ declare global {
 }
 
 const Snowflake: React.FC = () => {
-    const materialRef = useRef<any>(null);
+    const materialRef = useRef<THREE.ShaderMaterial>(null);
     const meshRef = useRef<THREE.Mesh>(null);
 
     useFrame((state, delta) => {
         if (materialRef.current) {
-            materialRef.current.uTime = state.clock.elapsedTime;
+            (materialRef.current as any).uTime = state.clock.elapsedTime;
         }
         if (meshRef.current) {
             meshRef.current.rotation.z += delta * 0.2; // Slow rotation
@@ -93,7 +93,7 @@ const Snowflake: React.FC = () => {
     return (
         <mesh ref={meshRef} position={[0, 6.5, 0]} scale={[2, 2, 1]}>
             <planeGeometry args={[1, 1]} />
-            {/* @ts-ignore */}
+            {/* @ts-expect-error - custom material */}
             <snowflakeMaterial ref={materialRef} transparent side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} />
         </mesh>
     );

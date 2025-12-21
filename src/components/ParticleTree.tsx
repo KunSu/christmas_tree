@@ -151,10 +151,10 @@ interface ParticleTreeProps {
 }
 
 const ParticleTree: React.FC<ParticleTreeProps> = ({ isMobile = false }) => {
-    const treeMatRef = useRef<any>(null);
-    const ornMatRef = useRef<any>(null);
-    const garMatRef = useRef<any>(null);
-    const iceMatRef = useRef<any>(null);
+    const treeMatRef = useRef<THREE.ShaderMaterial>(null);
+    const ornMatRef = useRef<THREE.ShaderMaterial>(null);
+    const garMatRef = useRef<THREE.ShaderMaterial>(null);
+    const iceMatRef = useRef<THREE.ShaderMaterial>(null);
 
     // Generate Geometries
     const treePositions = useMemo(() => generateTreeParticles(50000), [isMobile]);
@@ -162,10 +162,10 @@ const ParticleTree: React.FC<ParticleTreeProps> = ({ isMobile = false }) => {
     const garlandPositions = useMemo(() => generateGarlandParticles(1000), [isMobile]);
 
     useFrame((state) => {
-        if (treeMatRef.current) treeMatRef.current.uTime = state.clock.elapsedTime;
-        if (ornMatRef.current) ornMatRef.current.uTime = state.clock.elapsedTime;
-        if (garMatRef.current) garMatRef.current.uTime = state.clock.elapsedTime;
-        if (iceMatRef.current) iceMatRef.current.uTime = state.clock.elapsedTime;
+        if (treeMatRef.current) (treeMatRef.current as any).uTime = state.clock.elapsedTime;
+        if (ornMatRef.current) (ornMatRef.current as any).uTime = state.clock.elapsedTime;
+        if (garMatRef.current) (garMatRef.current as any).uTime = state.clock.elapsedTime;
+        if (iceMatRef.current) (iceMatRef.current as any).uTime = state.clock.elapsedTime;
     });
 
     return (
@@ -178,7 +178,7 @@ const ParticleTree: React.FC<ParticleTreeProps> = ({ isMobile = false }) => {
                         args={[treePositions, 3]}
                     />
                 </bufferGeometry>
-                {/* @ts-ignore */}
+                {/* @ts-expect-error - custom material */}
                 <treeMaterial ref={treeMatRef} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
             </points>
 
@@ -190,7 +190,7 @@ const ParticleTree: React.FC<ParticleTreeProps> = ({ isMobile = false }) => {
                         args={[ornamentPositions, 3]}
                     />
                 </bufferGeometry>
-                {/* @ts-ignore */}
+                {/* @ts-expect-error - custom material */}
                 <ornamentMaterial ref={ornMatRef} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
             </points>
 
@@ -202,7 +202,7 @@ const ParticleTree: React.FC<ParticleTreeProps> = ({ isMobile = false }) => {
                         args={[garlandPositions, 3]}
                     />
                 </bufferGeometry>
-                {/* @ts-ignore */}
+                {/* @ts-expect-error - custom material */}
                 <garlandMaterial ref={garMatRef} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
             </points>
 
@@ -214,7 +214,7 @@ const ParticleTree: React.FC<ParticleTreeProps> = ({ isMobile = false }) => {
                         args={[garlandPositions, 3]}
                     />
                 </bufferGeometry>
-                {/* @ts-ignore */}
+                {/* @ts-expect-error - custom material */}
                 <iceLightMaterial ref={iceMatRef} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
             </points>
 

@@ -76,7 +76,7 @@ declare global {
 
 const Foliage: React.FC = () => {
     const mode = useStore((state) => state.mode);
-    const materialRef = useRef<any>(null);
+    const materialRef = useRef<THREE.ShaderMaterial>(null);
 
     const count = 60000; // More particles for density
     const chaosPositions = useMemo(() => generateChaosPositions(count, 20), []);
@@ -118,8 +118,8 @@ const Foliage: React.FC = () => {
         const target = mode === 'CHAOS' ? 0 : 1;
         progress.current = THREE.MathUtils.lerp(progress.current, target, delta * 1.5);
 
-        materialRef.current.uTime = state.clock.elapsedTime;
-        materialRef.current.uProgress = progress.current;
+        (materialRef.current as any).uTime = state.clock.elapsedTime;
+        (materialRef.current as any).uProgress = progress.current;
     });
 
     return (
@@ -142,7 +142,7 @@ const Foliage: React.FC = () => {
                     args={[colors, 3]}
                 />
             </bufferGeometry>
-            {/* @ts-ignore */}
+            {/* @ts-expect-error - custom material */}
             <foliageMaterial ref={materialRef} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
         </points>
     );

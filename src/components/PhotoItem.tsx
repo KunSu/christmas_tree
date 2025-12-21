@@ -165,8 +165,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
         }
     });
 
-    const handleClick = (e: ThreeEvent<MouseEvent>) => {
-        e.stopPropagation();
+    const handleClick = () => {
         if (status === 'IDLE') {
             setStatus('ZOOMED');
         } else if (status === 'ZOOMED') {
@@ -178,21 +177,21 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
 
     // Click outside listener to close
     useEffect(() => {
-        const handleGlobalClick = (e: MouseEvent) => {
-            if (status !== 'IDLE') {
-                // We need to check if the click was on the object or not.
-                // But this is a DOM event.
-                // The Three.js onClick stops propagation, so if we get here, it might be a click elsewhere.
-                // However, mixing React events and DOM events is tricky.
-                // A better way is to use a global onClick on the Canvas or a full-screen transparent plane.
-                // For now, let's rely on the user clicking the background (which we can catch in Experience or a backdrop).
-            }
-        };
-        window.addEventListener('click', handleGlobalClick);
-        return () => window.removeEventListener('click', handleGlobalClick);
-    }, [status]);
+        if (status === 'IDLE') return;
 
-    // We can use a backdrop mesh for "click outside" when zoomed
+        const handleGlobalClick = () => {
+            setStatus('IDLE');
+        };
+        // Use a slight delay to avoid immediate closure if click propagates
+        const timer = setTimeout(() => {
+            window.addEventListener('click', handleGlobalClick);
+        }, 10);
+
+        return () => {
+            clearTimeout(timer);
+            window.removeEventListener('click', handleGlobalClick);
+        };
+    }, [status]);
 
     return (
         <>
@@ -200,14 +199,20 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                 <mesh
                     position={[camera.position.x, camera.position.y, camera.position.z]}
                     onClick={(e) => { e.stopPropagation(); setStatus('IDLE'); }}
-                    visible={false} // Invisible blocker
+                    visible={false}
                 >
                     <sphereGeometry args={[100, 16, 16]} />
                     <meshBasicMaterial side={THREE.BackSide} />
                 </mesh>
             )}
 
-            <group ref={ref} position={position} onClick={handleClick} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
+            <group
+                ref={ref}
+                position={position}
+                onClick={(e) => { e.stopPropagation(); handleClick(); }}
+                onPointerOver={() => setHover(true)}
+                onPointerOut={() => setHover(false)}
+            >
 
                 {/* Polaroid Frame */}
                 <mesh position={[0, -0.1, -0.02]}>

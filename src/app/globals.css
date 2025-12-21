@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #001a13; /* Deep Emerald Dark */
+  --background: #001a13;
+  /* Deep Emerald Dark */
   --foreground: #e0e0e0;
   --gold: #ffd700;
 }
@@ -20,9 +21,9 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 canvas {
-  touch-action: none; /* Prevent default touch actions like scrolling */
+  touch-action: none;
+  /* Prevent default touch actions like scrolling */
 }

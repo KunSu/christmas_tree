@@ -16,7 +16,17 @@ interface PhotoData {
 }
 
 // Helper for instanced ornaments
-const InstancedOrnaments = ({ count, color, scale, speedFactor, geometry, radiusMin, radiusMax }: any) => {
+interface InstancedOrnamentsProps {
+    count: number;
+    color: string;
+    scale: number;
+    speedFactor: number;
+    geometry: THREE.BufferGeometry;
+    radiusMin: number;
+    radiusMax: number;
+}
+
+const InstancedOrnaments = ({ count, color, scale, speedFactor, geometry, radiusMin, radiusMax }: InstancedOrnamentsProps) => {
     const mode = useStore((state) => state.mode);
     const meshRef = useRef<THREE.InstancedMesh>(null);
     const dummy = useMemo(() => new THREE.Object3D(), []);
