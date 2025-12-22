@@ -1,11 +1,24 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const VideoOverlay: React.FC = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [readyToPlay, setReadyToPlay] = useState(false);
+    const [hasError, setHasError] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
+
+    // Handle video load errors gracefully
+    const handleVideoError = useCallback(() => {
+        console.warn('Video failed to load - music will not be available');
+        setHasError(true);
+    }, []);
+
+    // Handle video loaded successfully
+    const handleVideoLoaded = useCallback(() => {
+        setIsLoaded(true);
+    }, []);
 
     const toggleAudio = () => {
         if (!videoRef.current) return;
@@ -69,6 +82,11 @@ const VideoOverlay: React.FC = () => {
         attemptPlay();
     }, [readyToPlay]);
 
+    // Don't render audio controls if video failed to load
+    if (hasError) {
+        return null;
+    }
+
     return (
         <>
             <video
@@ -77,9 +95,12 @@ const VideoOverlay: React.FC = () => {
                 style={{ display: 'none' }}
                 loop
                 playsInline
+                preload="auto"
+                onError={handleVideoError}
+                onLoadedData={handleVideoLoaded}
             />
 
-            <div className="fixed bottom-8 right-8 z-[110] flex items-center gap-4 pointer-events-none">
+            <div className={`fixed bottom-8 right-8 z-[110] flex items-center gap-4 pointer-events-none transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
                 {/* Musical Symbol */}
                 <div className="transition-all duration-700 opacity-100 translate-x-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={`text-white/60 ${isPlaying ? 'animate-bounce' : ''}`}>

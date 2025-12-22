@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment, OrbitControls, useProgress } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
@@ -10,12 +10,44 @@ import { currentTheme } from '../config/theme';
 import { useIsMobile } from '../hooks/useMobile';
 import VideoOverlay from './VideoOverlay';
 import LoadingScreen from './LoadingScreen';
+import WebGLFallback from './WebGLFallback';
+import { checkWebGLSupport, WebGLCapabilities } from '../utils/webglDetection';
 
 const Experience: React.FC = () => {
     const toggleMode = useStore((state) => state.toggleMode);
     const isMobile = useIsMobile();
     const { active, progress } = useProgress();
     const [started, setStarted] = useState(false);
+    const [webglStatus, setWebglStatus] = useState<'checking' | 'supported' | 'unsupported'>('checking');
+    const [webglCapabilities, setWebglCapabilities] = useState<WebGLCapabilities | null>(null);
+
+    // Check WebGL support on mount
+    useEffect(() => {
+        const capabilities = checkWebGLSupport();
+        setWebglCapabilities(capabilities);
+        setWebglStatus(capabilities.supported ? 'supported' : 'unsupported');
+
+        // Log capabilities for debugging
+        if (capabilities.supported) {
+            console.log('WebGL capabilities:', {
+                webgl2: capabilities.webgl2,
+                renderer: capabilities.renderer,
+                isLowEnd: capabilities.isLowEnd,
+            });
+        } else {
+            console.warn('WebGL not supported on this device');
+        }
+    }, []);
+
+    // Retry WebGL check
+    const handleRetry = useCallback(() => {
+        setWebglStatus('checking');
+        setTimeout(() => {
+            const capabilities = checkWebGLSupport();
+            setWebglCapabilities(capabilities);
+            setWebglStatus(capabilities.supported ? 'supported' : 'unsupported');
+        }, 100);
+    }, []);
 
     // Fade out loading screen only after initial assets are loaded
     useEffect(() => {
@@ -28,6 +60,16 @@ const Experience: React.FC = () => {
         }
     }, [active, progress]);
 
+    // Show fallback UI if WebGL is not supported
+    if (webglStatus === 'unsupported') {
+        return <WebGLFallback onRetry={handleRetry} />;
+    }
+
+    // Show loading while checking WebGL
+    if (webglStatus === 'checking') {
+        return <LoadingScreen started={false} />;
+    }
+
     return (
         <div className="w-full h-screen relative">
             <LoadingScreen started={started} />
@@ -38,7 +80,7 @@ const Experience: React.FC = () => {
                     fov: isMobile ? 50 : 45
                 }}
                 gl={{ antialias: false, toneMapping: THREE.ReinhardToneMapping, toneMappingExposure: 1.5 }}
-                dpr={[1, 2]}
+                dpr={webglCapabilities?.isLowEnd ? [1, 1] : [1, 2]}
             >
                 <color attach="background" args={[currentTheme.background]} />
 

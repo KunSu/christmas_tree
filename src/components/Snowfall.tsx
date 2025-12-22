@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { currentTheme } from '../config/theme';
@@ -7,8 +7,59 @@ interface SnowfallProps {
   isMobile?: boolean;
 }
 
+/**
+ * Get optimized particle count based on device capabilities
+ */
+function getOptimizedParticleCount(isMobile: boolean): number {
+  // Default counts
+  const BASE_DESKTOP = 10000;
+  const BASE_MOBILE = 6000;
+
+  if (typeof window === 'undefined') {
+    return isMobile ? BASE_MOBILE : BASE_DESKTOP;
+  }
+
+  // Check hardware concurrency (CPU cores)
+  const cores = navigator.hardwareConcurrency || 4;
+
+  // Check device memory (Chrome only)
+  const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory || 4;
+
+  // Check for connection quality
+  const connection = (navigator as Navigator & {
+    connection?: { effectiveType?: string; saveData?: boolean }
+  }).connection;
+  const isSlowConnection = connection?.effectiveType === '2g' ||
+    connection?.effectiveType === 'slow-2g' ||
+    connection?.saveData === true;
+
+  // Calculate performance factor
+  let factor = 1.0;
+
+  if (cores < 4) factor *= 0.5;
+  else if (cores < 8) factor *= 0.75;
+
+  if (deviceMemory < 4) factor *= 0.5;
+  else if (deviceMemory < 8) factor *= 0.75;
+
+  if (isSlowConnection) factor *= 0.5;
+
+  // Apply mobile reduction
+  const base = isMobile ? BASE_MOBILE : BASE_DESKTOP;
+  const optimized = Math.floor(base * factor);
+
+  // Ensure minimum count for visual effect
+  return Math.max(optimized, 1000);
+}
+
 const GoldDust: React.FC<SnowfallProps> = ({ isMobile = false }) => {
-  const count = isMobile ? 6000 : 10000; // Reduced snow for mobile performance
+  // Use state to handle SSR and dynamic count
+  const [count, setCount] = useState(isMobile ? 3000 : 5000);
+
+  useEffect(() => {
+    // Update count on client side with optimized value
+    setCount(getOptimizedParticleCount(isMobile));
+  }, [isMobile]);
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
