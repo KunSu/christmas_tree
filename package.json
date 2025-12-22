@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:github": "DEPLOY_TARGET=github next build",
+    "build:s3": "DEPLOY_TARGET=s3 next build",
     "start": "next start",
     "lint": "eslint"
   },

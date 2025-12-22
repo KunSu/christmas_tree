@@ -85,7 +85,7 @@ const Experience: React.FC = () => {
                 <color attach="background" args={[currentTheme.background]} />
 
                 <Suspense fallback={null}>
-                    <Environment files="/christmas_tree/assets/environment/st_fagans_interior_1k.hdr" />
+                    <Environment files={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/assets/environment/st_fagans_interior_1k.hdr`} />
                     <ChristmasTree isMobile={isMobile} />
                 </Suspense>
 

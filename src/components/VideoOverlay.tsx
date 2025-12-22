@@ -91,7 +91,7 @@ const VideoOverlay: React.FC = () => {
         <>
             <video
                 ref={videoRef}
-                src="/christmas_tree/assets/merryChristmasMrLawrence.mp4"
+                src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/assets/merryChristmasMrLawrence.mp4`}
                 style={{ display: 'none' }}
                 loop
                 playsInline

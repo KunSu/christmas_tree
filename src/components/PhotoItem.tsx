@@ -25,6 +25,9 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
     // Interaction Status: IDLE -> ZOOMED -> FLIPPED
     const [status, setStatus] = useState<'IDLE' | 'ZOOMED' | 'FLIPPED'>('IDLE');
 
+    // Track if click originated from this photo to prevent global listener interference
+    const clickedFromPhoto = useRef(false);
+
     useCursor(hovered && status === 'IDLE');
 
     // Chaos position
@@ -166,6 +169,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
     });
 
     const handleClick = () => {
+        clickedFromPhoto.current = true;
         if (status === 'IDLE') {
             setStatus('ZOOMED');
         } else if (status === 'ZOOMED') {
@@ -180,6 +184,11 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
         if (status === 'IDLE') return;
 
         const handleGlobalClick = () => {
+            // Skip if the click originated from the photo itself
+            if (clickedFromPhoto.current) {
+                clickedFromPhoto.current = false;
+                return;
+            }
             setStatus('IDLE');
         };
         // Use a slight delay to avoid immediate closure if click propagates

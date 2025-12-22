@@ -92,9 +92,17 @@ const Ornaments: React.FC<OrnamentsProps> = ({ isMobile = false }) => {
     const [photos, setPhotos] = useState<PhotoData[]>([]);
 
     useEffect(() => {
-        fetch('/christmas_tree/assets/photos/photos.json')
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+        fetch(`${basePath}/assets/photos/photos.json`)
             .then(res => res.json())
-            .then(data => setPhotos(data))
+            .then((data: PhotoData[]) => {
+                // Prefix URLs with basePath for deployment flexibility
+                const prefixedPhotos = data.map(photo => ({
+                    ...photo,
+                    url: `${basePath}${photo.url}`
+                }));
+                setPhotos(prefixedPhotos);
+            })
             .catch(err => console.error("Failed to load photos", err));
     }, []);
 
