@@ -218,29 +218,30 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
             <group
                 ref={ref}
                 position={position}
+                renderOrder={10}
                 onClick={(e) => { e.stopPropagation(); handleClick(); }}
                 onPointerOver={() => setHover(true)}
                 onPointerOut={() => setHover(false)}
             >
 
                 {/* Polaroid Frame */}
-                <mesh position={[0, -0.1, -0.02]}>
-                    <boxGeometry args={[1.2, 1.4, 0.05]} />
+                <mesh position={[0, -0.05, -0.02]}>
+                    <boxGeometry args={[1.2, 1.6, 0.05]} />
                     <meshStandardMaterial color={currentTheme.photo.frame} roughness={0.2} metalness={0.1} side={THREE.DoubleSide} />
                 </mesh>
 
                 {/* Photo */}
                 <Image
                     url={url}
-                    position={[0, 0, 0.01]}
-                    scale={[1, 1]}
+                    position={[0, 0.05, 0.01]}
+                    scale={[1.1, 1.3]}
                     transparent
                 />
 
                 {/* Date on Front */}
                 {date && (
                     <Text
-                        position={[0, -0.65, 0.02]}
+                        position={[0, -0.7, 0.02]}
                         fontSize={0.1}
                         color={currentTheme.photo.text}
                         anchorX="center"

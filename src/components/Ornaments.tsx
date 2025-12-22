@@ -111,8 +111,8 @@ const Ornaments: React.FC<OrnamentsProps> = ({ isMobile = false }) => {
     // Generate hanging positions for photos
     const photoPositions = useMemo(() => {
         const count = Math.max(photos.length, 1);
-        // Use Fibonacci spiral for photos to ensure even distribution and prevent overlaps
-        const pos = generateFibonacciSpiralPositions(count, { radiusMin: 0.95, radiusMax: 1.05 });
+        // Use Fibonacci spiral for photos with larger radius to ensure photos are on outer layer
+        const pos = generateFibonacciSpiralPositions(count, { radiusMin: 1.06, radiusMax: 1.06 });
         const arr = [];
         for (let i = 0; i < count; i++) {
             arr.push([pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]]);
