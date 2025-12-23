@@ -61,7 +61,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
             targetPos.copy(basePos);
 
             // Scale (apply base scale prop)
-            const s = (hovered ? 1.4 : 1) * scale;
+            const s = (hovered ? 1.4 : 0.7) * scale;
             targetScale.set(s, s, s);
 
             // Rotation
@@ -225,23 +225,23 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
             >
 
                 {/* Polaroid Frame */}
-                <mesh position={[0, -0.05, -0.02]}>
-                    <boxGeometry args={[1.2, 1.6, 0.05]} />
+                <mesh position={[0, -0.1, -0.02]}>
+                    <boxGeometry args={[1.3, 2.3, 0.05]} />
                     <meshStandardMaterial color={currentTheme.photo.frame} roughness={0.2} metalness={0.1} side={THREE.DoubleSide} />
                 </mesh>
 
                 {/* Photo */}
                 <Image
                     url={url}
-                    position={[0, 0.05, 0.01]}
-                    scale={[1.1, 1.3]}
+                    position={[0, -0.05, 0.01]}
+                    scale={[1.2, 2.1]}
                     transparent
                 />
 
                 {/* Date on Front */}
                 {date && (
                     <Text
-                        position={[0, -0.7, 0.02]}
+                        position={[0, -1.15, 0.02]}
                         fontSize={0.1}
                         color={currentTheme.photo.text}
                         anchorX="center"
@@ -253,7 +253,6 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
 
                 {/* Back of Photo (Message) */}
                 <mesh position={[0, 0, -0.051]} rotation={[0, Math.PI, 0]}>
-                    <planeGeometry args={[1, 1]} />
                     <meshStandardMaterial color={currentTheme.photo.back} />
                     {description && (
                         <Text
