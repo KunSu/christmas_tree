@@ -97,11 +97,14 @@ const Ornaments: React.FC<OrnamentsProps> = ({ isMobile = false }) => {
             .then(res => res.json())
             .then((data: PhotoData[]) => {
                 // Prefix URLs with basePath for deployment flexibility
-                const prefixedPhotos = data.map(photo => ({
-                    ...photo,
-                    url: `${basePath}${photo.url}`
-                }));
-                setPhotos(prefixedPhotos);
+                // And sort by ID (numeric)
+                const sortedPhotos = data
+                    .map(photo => ({
+                        ...photo,
+                        url: `${basePath}${photo.url}`
+                    }))
+                    .sort((a, b) => parseInt(a.id) - parseInt(b.id));
+                setPhotos(sortedPhotos);
             })
             .catch(err => console.error("Failed to load photos", err));
     }, []);
@@ -114,7 +117,9 @@ const Ornaments: React.FC<OrnamentsProps> = ({ isMobile = false }) => {
         // Use Fibonacci spiral for photos with larger radius to ensure photos are on outer layer
         const pos = generateFibonacciSpiralPositions(count, { radiusMin: 1.06, radiusMax: 1.06 });
         const arr = [];
-        for (let i = 0; i < count; i++) {
+        // positions from generateFibonacciSpiralPositions are from bottom to top
+        // To make ID 1 at the top, we reverse the positions array
+        for (let i = count - 1; i >= 0; i--) {
             arr.push([pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]]);
         }
         return arr;

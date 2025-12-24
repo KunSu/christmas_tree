@@ -202,6 +202,9 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
         };
     }, [status]);
 
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+    const fontPath = `${basePath}/assets/fonts/LXGWWenKaiTC-Regular.ttf`;
+
     return (
         <>
             {status !== 'IDLE' && (
@@ -226,15 +229,15 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
 
                 {/* Polaroid Frame */}
                 <mesh position={[0, -0.1, -0.02]}>
-                    <boxGeometry args={[1.3, 2.3, 0.05]} />
-                    <meshStandardMaterial color={currentTheme.photo.frame} roughness={0.2} metalness={0.1} side={THREE.DoubleSide} />
+                    <boxGeometry args={[1.3, 2.25, 0.05]} />
+                    <meshBasicMaterial color={currentTheme.photo.frame} toneMapped={false} />
                 </mesh>
 
                 {/* Photo */}
                 <Image
                     url={url}
                     position={[0, -0.05, 0.01]}
-                    scale={[1.2, 2.1]}
+                    scale={[1.25, 2.05]}
                     transparent
                 />
 
@@ -246,14 +249,16 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                         color={currentTheme.photo.text}
                         anchorX="center"
                         anchorY="middle"
+                        font={fontPath}
                     >
+                        <meshBasicMaterial color={currentTheme.photo.text} toneMapped={false} />
                         {date}
                     </Text>
                 )}
 
                 {/* Back of Photo (Message) */}
                 <mesh position={[0, 0, -0.051]} rotation={[0, Math.PI, 0]}>
-                    <meshStandardMaterial color={currentTheme.photo.back} />
+                    <meshBasicMaterial color={currentTheme.photo.back} toneMapped={false} />
                     {description && (
                         <Text
                             position={[0, 0, 0.01]}
@@ -263,7 +268,9 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                             textAlign="center"
                             anchorX="center"
                             anchorY="middle"
+                            font={fontPath}
                         >
+                            <meshBasicMaterial color={currentTheme.photo.text} toneMapped={false} />
                             {description}
                         </Text>
                     )}

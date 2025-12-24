@@ -65,7 +65,7 @@ export const Themes: Record<string, OrnamentTheme> = {
             emissive: '#ffffff',
         },
         photo: {
-            frame: '#ffffff',
+            frame: '#ffdddd',
             back: '#ffdddd',
             text: 'black',
         },

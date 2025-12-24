@@ -103,7 +103,7 @@ const Experience: React.FC = () => {
 
             {/* UI Overlay */}
             <div className={`absolute top-8 left-0 w-full flex flex-col items-center pointer-events-none gap-4 px-4 transition-opacity duration-1000 ${started ? 'opacity-100' : 'opacity-0'}`}>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center pointer-events-none break-words max-w-[90vw]"
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-center pointer-events-none break-words max-w-[90vw]"
                     style={{
                         background: `linear-gradient(135deg, ${currentTheme.heading.gradient.join(', ')})`,
                         WebkitBackgroundClip: 'text',
