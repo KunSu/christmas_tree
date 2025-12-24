@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, ThreeEvent, useThree } from '@react-three/fiber';
-import { Image, useCursor, Text } from '@react-three/drei';
+import { Image, useCursor, Text, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
 import { currentTheme } from '../config/theme';
@@ -21,6 +21,35 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
     const mode = useStore((state) => state.mode);
     const ref = useRef<THREE.Group>(null);
     const [hovered, setHover] = useState(false);
+
+    // Image aspect ratio handling
+    const texture = useTexture(url);
+    const imageAspect = useMemo(() => {
+        const img = texture.image as any;
+        if (img && img.width && img.height) {
+            return img.width / img.height;
+        }
+        return 1;
+    }, [texture]);
+    const maxSlotWidth = 1.25;
+    const maxSlotHeight = 2.05;
+    const slotAspect = maxSlotWidth / maxSlotHeight;
+
+    const imageScale = useMemo(() => {
+        let w = maxSlotWidth;
+        let h = maxSlotHeight;
+        if (imageAspect > slotAspect) {
+            // Wider than slot
+            h = maxSlotWidth / imageAspect;
+        } else {
+            // Taller than slot
+            w = maxSlotHeight * imageAspect;
+        }
+        return [w, h] as [number, number];
+    }, [imageAspect, slotAspect]);
+
+    // Internal zoom for the image itself
+    const [internalZoom, setInternalZoom] = useState(1);
 
     // Interaction Status: IDLE -> ZOOMED -> FLIPPED
     const [status, setStatus] = useState<'IDLE' | 'ZOOMED' | 'FLIPPED'>('IDLE');
@@ -60,8 +89,8 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
             const basePos = mode === 'CHAOS' ? chaosPos : treePos;
             targetPos.copy(basePos);
 
-            // Scale (apply base scale prop)
-            const s = (hovered ? 1.4 : 0.7) * scale;
+            // Scale (apply base scale prop and internal zoom)
+            const s = (hovered ? 1.4 : 0.7) * scale * internalZoom;
             targetScale.set(s, s, s);
 
             // Rotation
@@ -88,11 +117,11 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                 ref.current.parent.worldToLocal(targetWorldPos);
             }
 
-            // Scale: Calculate to fill half screen height (with base scale applied)
+            // Scale: Calculate to fill half screen height (with base scale and internal zoom applied)
             const fovRad = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
             const dist = 5;
             const heightAtDist = 2 * dist * Math.tan(fovRad / 2);
-            const s = heightAtDist * 0.4 * scale; // 40% of screen height, scaled by base scale
+            const s = heightAtDist * 0.4 * scale * internalZoom; // 40% of screen height, scaled by base scale and zoom
             targetScale.set(s, s, s);
 
             // Rotation: Face camera
@@ -179,6 +208,14 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
         }
     };
 
+    // Handle scroll to scale image internal zoom
+    const handleWheel = (e: ThreeEvent<WheelEvent>) => {
+        if (status !== 'IDLE') {
+            setInternalZoom(prev => Math.max(0.1, Math.min(5, prev - e.deltaY * 0.001)));
+            e.stopPropagation();
+        }
+    };
+
     // Click outside listener to close
     useEffect(() => {
         if (status === 'IDLE') return;
@@ -190,6 +227,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                 return;
             }
             setStatus('IDLE');
+            setInternalZoom(1); // Reset zoom on close
         };
         // Use a slight delay to avoid immediate closure if click propagates
         const timer = setTimeout(() => {
@@ -210,7 +248,11 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
             {status !== 'IDLE' && (
                 <mesh
                     position={[camera.position.x, camera.position.y, camera.position.z]}
-                    onClick={(e) => { e.stopPropagation(); setStatus('IDLE'); }}
+                    onClick={(e) => { 
+                        e.stopPropagation(); 
+                        setStatus('IDLE');
+                        setInternalZoom(1); 
+                    }}
                     visible={false}
                 >
                     <sphereGeometry args={[100, 16, 16]} />
@@ -225,6 +267,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                 onClick={(e) => { e.stopPropagation(); handleClick(); }}
                 onPointerOver={() => setHover(true)}
                 onPointerOut={() => setHover(false)}
+                onWheel={handleWheel}
             >
 
                 {/* Polaroid Frame */}
@@ -237,7 +280,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                 <Image
                     url={url}
                     position={[0, -0.05, 0.01]}
-                    scale={[1.25, 2.05]}
+                    scale={imageScale}
                     transparent
                 />
 
