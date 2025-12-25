@@ -12,6 +12,8 @@ import VideoOverlay from './VideoOverlay';
 import LoadingScreen from './LoadingScreen';
 import WebGLFallback from './WebGLFallback';
 import { checkWebGLSupport, WebGLCapabilities } from '../utils/webglDetection';
+import VisionLayer from './VisionLayer';
+import GestureController from './GestureController';
 
 const Experience: React.FC = () => {
     const toggleMode = useStore((state) => state.toggleMode);
@@ -73,6 +75,9 @@ const Experience: React.FC = () => {
     return (
         <div className="w-full h-screen relative">
             <LoadingScreen started={started} />
+            
+            {/* <VisionLayer />
+            <GestureController /> */}
 
             <Canvas
                 camera={{

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, ThreeEvent, useThree } from '@react-three/fiber';
 import { Image, useCursor, Text, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
-import { useStore } from '../store/useStore';
+import { useStore, PhotoStatus } from '../store/useStore';
 import { currentTheme } from '../config/theme';
 import { generateChaosPositions } from '../utils/positions';
 
@@ -19,6 +19,11 @@ interface PhotoItemProps {
 const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position, rotation, scale, index }) => {
     const { camera } = useThree();
     const mode = useStore((state) => state.mode);
+    const selectedPhotoIndex = useStore((state) => state.selectedPhotoIndex);
+    const photoStatus = useStore((state) => state.photoStatus);
+    const setSelectedPhotoIndex = useStore((state) => state.setSelectedPhotoIndex);
+    const setPhotoStatus = useStore((state) => state.setPhotoStatus);
+
     const ref = useRef<THREE.Group>(null);
     const [hovered, setHover] = useState(false);
 
@@ -51,8 +56,9 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
     // Internal zoom for the image itself
     const [internalZoom, setInternalZoom] = useState(1);
 
-    // Interaction Status: IDLE -> ZOOMED -> FLIPPED
-    const [status, setStatus] = useState<'IDLE' | 'ZOOMED' | 'FLIPPED'>('IDLE');
+    // Sync local status with global status if this photo is selected
+    const isSelected = selectedPhotoIndex === index;
+    const status: PhotoStatus = isSelected ? photoStatus : 'IDLE';
 
     // Track if click originated from this photo to prevent global listener interference
     const clickedFromPhoto = useRef(false);
@@ -200,11 +206,11 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
     const handleClick = () => {
         clickedFromPhoto.current = true;
         if (status === 'IDLE') {
-            setStatus('ZOOMED');
+            setSelectedPhotoIndex(index);
         } else if (status === 'ZOOMED') {
-            setStatus('FLIPPED');
+            setPhotoStatus('FLIPPED');
         } else if (status === 'FLIPPED') {
-            setStatus('ZOOMED');
+            setPhotoStatus('ZOOMED');
         }
     };
 
@@ -226,7 +232,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                 clickedFromPhoto.current = false;
                 return;
             }
-            setStatus('IDLE');
+            setSelectedPhotoIndex(null);
             setInternalZoom(1); // Reset zoom on close
         };
         // Use a slight delay to avoid immediate closure if click propagates
@@ -238,7 +244,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
             clearTimeout(timer);
             window.removeEventListener('click', handleGlobalClick);
         };
-    }, [status]);
+    }, [status, setSelectedPhotoIndex]);
 
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
     const fontPath = `${basePath}/assets/fonts/LXGWWenKaiTC-Regular.ttf`;
@@ -250,7 +256,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                     position={[camera.position.x, camera.position.y, camera.position.z]}
                     onClick={(e) => { 
                         e.stopPropagation(); 
-                        setStatus('IDLE');
+                        setSelectedPhotoIndex(null);
                         setInternalZoom(1); 
                     }}
                     visible={false}
@@ -285,7 +291,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                 />
 
                 {/* Date on Front */}
-                {date && (
+                {/* {date && (
                     <Text
                         position={[0, -1.15, 0.02]}
                         fontSize={0.1}
@@ -297,7 +303,7 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ url, description, date, position,
                         <meshBasicMaterial color={currentTheme.photo.text} toneMapped={false} />
                         {date}
                     </Text>
-                )}
+                )} */}
 
                 {/* Back of Photo (Message) */}
                 <mesh position={[0, 0, -0.051]} rotation={[0, Math.PI, 0]}>

@@ -38,7 +38,7 @@
     {
         "id": "7",
         "url": "/assets/photos/7.jpg",
-        "description": "明明是去年的照片\n却总觉得像前不久才拍的\n时间真的过得好快\n希望你像照片里一样也一直这么好运连连\n运气爆棚！！\n -- 秋婷",
+        "description": "明明是去年的照片\n却总觉得像前不久才拍的\n时间真的过得好快\n希望你像照片里一样\n也一直这么好运连连\n运气爆棚！！\n -- 秋婷",
         "date": "2023-12-24"
     },
     {
@@ -62,7 +62,49 @@
     {
         "id": "11",
         "url": "/assets/photos/11.jpg",
-        "description": "全家一起祝节日快乐 -- Cheng",
+        "description": "全家一起祝节日快乐\n -- Cheng",
         "date": "2023-12-23"
+    },
+    {
+        "id": "12",
+        "url": "/assets/photos/12.jpg",
+        "description": "有崽崽之后的第一次忘崽约会\n纯看照片真的看不出来你生了娃\n一切都很不容易但也很开心\n -- Kun",
+        "date": "2023-12-22"
+    },
+    {
+        "id": "13",
+        "url": "/assets/photos/13.jpg",
+        "description": "第一次带崽出去看风景\n虽然崽睡了一路\n你也看着崽看了一路\n但希望你还是可以\n多多欣赏外面的风景\n -- Kun",
+        "date": "2023-12-21"
+    },
+    {
+        "id": "14",
+        "url": "/assets/photos/14.jpg",
+        "description": "我们的新日常\n充满了无序、混乱和疲惫\n但还是开心快乐\n -- Kun",
+        "date": "2023-12-20"
+    },
+    {
+        "id": "15",
+        "url": "/assets/photos/15.jpg",
+        "description": "宝宝终于百日啦\n关关难过关关过\n一切都会慢慢变好起来\n -- Kun",
+        "date": "2023-12-19"
+    },
+    {
+        "id": "16",
+        "url": "/assets/photos/16.jpg",
+        "description": "我们的宇轩出生啦\n希望崽健健康康少闹腾\n快快睡整觉\n让爸妈可以休息休息\n -- Kun",
+        "date": "2023-12-18"
+    },
+    {
+        "id": "17",
+        "url": "/assets/photos/17.jpg",
+        "description": "卸货前的温柔\n -- Kun",
+        "date": "2023-12-17"
+    },
+    {
+        "id": "18",
+        "url": "/assets/photos/18.jpg",
+        "description": "我们要记住自己原本的模样\n要先照顾好自己\n才能照顾好宝宝喔\n -- Kun",
+        "date": "2023-12-16"
     }
 ]

@@ -90,6 +90,21 @@ interface OrnamentsProps {
 
 const Ornaments: React.FC<OrnamentsProps> = ({ isMobile = false }) => {
     const [photos, setPhotos] = useState<PhotoData[]>([]);
+    const nextPhoto = useStore((state) => state.nextPhoto);
+    const prevPhoto = useStore((state) => state.prevPhoto);
+    const selectedPhotoIndex = useStore((state) => state.selectedPhotoIndex);
+    const setSelectedPhotoIndex = useStore((state) => state.setSelectedPhotoIndex);
+
+    // Update the store with total photos count so wrap-around works
+    useEffect(() => {
+        if (photos.length > 0 && selectedPhotoIndex !== null) {
+            if (selectedPhotoIndex >= photos.length) {
+                setSelectedPhotoIndex(0);
+            } else if (selectedPhotoIndex < 0) {
+                setSelectedPhotoIndex(photos.length - 1);
+            }
+        }
+    }, [selectedPhotoIndex, photos.length, setSelectedPhotoIndex]);
 
     useEffect(() => {
         const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
