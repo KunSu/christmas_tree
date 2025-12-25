@@ -102,7 +102,7 @@ const VisionLayer: React.FC = () => {
             const handedness = results.handednesses[index][0].categoryName;
 
             // Draw Skeleton
-            if (ctx && debug) {
+            if (ctx && canvas && debug) {
                 ctx.strokeStyle = index === 0 ? '#00ff00' : '#0000ff';
                 ctx.lineWidth = 4;
                 ctx.beginPath();
