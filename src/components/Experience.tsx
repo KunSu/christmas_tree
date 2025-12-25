@@ -1,6 +1,7 @@
 'use client';
 
 import React, { Suspense, useState, useEffect, useCallback } from 'react';
+import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { Environment, OrbitControls, useProgress } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
@@ -143,5 +144,4 @@ const Experience: React.FC = () => {
     );
 };
 
-import * as THREE from 'three';
 export default Experience;

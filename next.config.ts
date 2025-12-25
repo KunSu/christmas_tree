@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_BASE_PATH: isGitHubPages ? '/christmas_tree' : '',
   },
+  transpilePackages: ['three'],
 };
 
 export default nextConfig;

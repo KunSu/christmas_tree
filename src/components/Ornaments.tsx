@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore } from '../store/useStore';
@@ -176,5 +176,4 @@ const Ornaments: React.FC<OrnamentsProps> = ({ isMobile = false }) => {
     );
 };
 
-import { Suspense } from 'react';
 export default Ornaments;
